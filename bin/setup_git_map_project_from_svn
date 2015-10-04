@@ -36,12 +36,12 @@ fi;
   ## move files into a map folder if that has not yet been done
 if [ ! -d "map" ]; then
   mkdir map
-  mv * map 2> /dev/null
-  mv map/README.md ./
+  for i in $(ls | egrep -v "README.md|^map$"); do
+    mv -v $i map
+  done;
   git add map
   git commit map -m "initial add of map files for $MAP_NAME"
 fi;
-
 
 function copyAndCommit() {
   FILE=$1
