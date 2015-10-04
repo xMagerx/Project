@@ -1,0 +1,59 @@
+#!/bin/bash
+
+## Assumes you created a folder and repo with the same name, and you exploded the contents of a map
+## zip from SVN into that folder. Run this script from within that folder to initialize the map repository.
+## This script will use boilerplate files that are found with the 270BC map.
+
+set -ev
+
+TEMPLATE_PROJ="../The_Pact_Of_Steel"
+if [ ! -d "$TEMPLATE_PROJ" ]; then
+  echo "Did not find template project folder relative to the current folder: $TEMPLATE_PROJ, are you in a map project directory? Aborting.."
+  exit -1
+fi;
+
+if [ $(ls | grep -c "*zip$") -gt 0 ]; then
+  unzip *.zip
+  rm -rf *.zip
+fi
+
+find . -type f -exec dos2unix {} \; 2>  /dev/null
+
+
+MAP_NAME=$(basename $(pwd))
+if [ ! -d ".git" ]; then
+  git init
+  git remote add origin git@github.com:triplea-maps/$MAP_NAME.git
+fi
+
+  ## create the readme if not already created
+if [ ! -e "README.md" ]; then
+  echo "# ${MAP_NAME}" >> README.md
+  git add README.md
+  git commit README.md -m 'Initial commit with README.md file'
+fi;
+  
+  ## move files into a map folder if that has not yet been done
+if [ ! -d "map" ]; then
+  mkdir map
+  mv * map 2> /dev/null
+  mv map/README.md ./
+  git add map
+  git commit map -m "initial add of map files for $MAP_NAME"
+fi;
+
+
+function copyAndCommit() {
+  FILE=$1
+  if [ ! -e "$FILE" ]; then
+   cp $TEMPLATE_PROJ/$FILE ./
+   git add $FILE
+   git commit $FILE -m "Add project support file: $FILE"
+  fi
+}
+
+copyAndCommit .gitattributes
+copyAndCommit .gitignore
+copyAndCommit build.gradle
+
+git push origin -u master
