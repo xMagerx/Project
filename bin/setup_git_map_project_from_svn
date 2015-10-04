@@ -15,9 +15,9 @@ fi;
 if [ $(ls | grep -c "*zip$") -gt 0 ]; then
   unzip *.zip
   rm -rf *.zip
+  find . -type f -name "*png" | xargs optipng | grep decrease
+  find . -type f -exec dos2unix {} \; 2>  /dev/null
 fi
-
-find . -type f -exec dos2unix {} \; 2>  /dev/null
 
 
 MAP_NAME=$(basename $(pwd))
@@ -26,8 +26,11 @@ if [ ! -d ".git" ]; then
   git remote add origin git@github.com:triplea-maps/$MAP_NAME.git
 fi
 
+git pull --rebase origin master
+
   ## create the readme if not already created
 if [ ! -e "README.md" ]; then
+
   echo "# ${MAP_NAME}" >> README.md
   git add README.md
   git commit README.md -m 'Initial commit with README.md file'
