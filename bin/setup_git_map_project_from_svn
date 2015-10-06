@@ -6,7 +6,7 @@
 
 set -ev
 
-TEMPLATE_PROJ="../The_Pact_Of_Steel"
+TEMPLATE_PROJ="../Project/templates"
 if [ ! -d "$TEMPLATE_PROJ" ]; then
   echo "Did not find template project folder relative to the current folder: $TEMPLATE_PROJ, are you in a map project directory? Aborting.."
   exit -1
