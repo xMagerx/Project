@@ -49,6 +49,8 @@ else
   ls | grep zip$ | xargs --no-run-if-empty unzip
   ls | grep zip$ | xargs --no-run-if-empty rm
   cd ..
+  git add map
+  git commit map -m "initial add of map files for $MAP_NAME"
 fi;
 
 function copyAndCommit() {
