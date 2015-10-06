@@ -12,8 +12,8 @@ if [ ! -d "$TEMPLATE_PROJ" ]; then
   exit -1
 fi;
 
-unzip *.zip
-rm -rf *.zip
+ls | grep zip$ | xargs --no-run-if-empty unzip
+ls | grep zip$ | xargs --no-run-if-empty rm
 
 MAP_NAME=$(basename $(pwd))
 if [ ! -d ".git" ]; then
@@ -46,9 +46,9 @@ if [ ! -d "map" ]; then
   git commit map -m "initial add of map files for $MAP_NAME"
 else
   cd map
-  unzip *.zip
-  rm *.zip
-
+  ls | grep zip$ | xargs --no-run-if-empty unzip
+  ls | grep zip$ | xargs --no-run-if-empty rm
+  cd ..
 fi;
 
 function copyAndCommit() {
@@ -59,6 +59,7 @@ function copyAndCommit() {
    git commit $FILE -m "Add project support file: $FILE"
   fi
 }
+
 
 copyAndCommit .gitattributes
 copyAndCommit .gitignore
