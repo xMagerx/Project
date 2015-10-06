@@ -1,0 +1,17 @@
+Ok, I made this hex tessellation pattern for use on hex based games
+
+to use it, simply set it as a "pattern" in gimp or photoshop or whatever u use
+(select all, copy, paste as -> new pattern)
+
+then switch to the paintbucket, and switch to painting patterns, then click
+
+
+you automatically fill the entire map up with hexes
+
+yay
+
+
+i made this hex specifically to fit 6 full sized units, which i consider about right for triplea 
+
+thx,
+veqryn

@@ -1,0 +1,34 @@
+This document is a guide to creating a mod from an existing xml file.
+
+1. Open the second part of the map creator.
+
+2. Select the 'Load Map Xml' in the 'File' menu.
+
+3. Locate the xml file to base your mod off of.
+
+4. Locate the 'centers.txt' file if the program asks for it.
+
+5. If you have access to the map's image, locate it and continue.
+
+The program will now load all the contents of the xml file into the program... 
+
+6. Go to each step that has information you want to change and edit the information.
+
+7. Save the edited xml file by proceeding to the last step and pressing the "Save Map To File" button.
+
+
+Useful links:
+A Complete List of the Correct Properties / Game Settings to use:
+http://tripleadev.1671093.n2.nabble.com/Correct-Properties-list-for-reference-and-Better-XMLs-Please-tp4488213p4488213.html
+http://n2.nabble.com/Correct-Properties-list-for-reference-and-Better-XMLs-Please-tp4488213p4488213.html
+
+General How to:
+http://bit.ly/aTuuyA
+http://n2.nabble.com/Download-Maps-Links-Hosting-Games-General-Information-tp4074312p4074312.html
+http://tripleadev.1671093.n2.nabble.com/Download-Maps-Links-Hosting-Games-General-Information-tp4074312p4074312.html
+
+TripleA forum:
+http://triplea.sourceforge.net/mywiki/Forum
+
+Latest Version of TripleA:
+https://sourceforge.net/projects/triplea/files/
