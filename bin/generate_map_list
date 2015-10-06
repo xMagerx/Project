@@ -1,0 +1,16 @@
+#!/bin/bash
+
+
+ ## script that will 
+if [ ! -d "270BC" ]; then
+    echo "Error, did not find expected 270BC folder. Are you running the script from the correct directory?"
+    exit 1
+fi
+
+if [ ! -d "Project" ]; then
+   echo "Error, did not find the project folder, do you have everything cloned and in this one folder?"
+   exit 1
+fi
+
+
+ls | grep -v "Project" | sort > Project/MapList.txt
