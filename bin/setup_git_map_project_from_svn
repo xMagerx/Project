@@ -4,7 +4,7 @@
 ## zip from SVN into that folder. Run this script from within that folder to initialize the map repository.
 ## This script will use boilerplate files that are found with the 270BC map.
 
-set -ev
+set -v
 
 TEMPLATE_PROJ="../Project/templates"
 if [ ! -d "$TEMPLATE_PROJ" ]; then
@@ -12,13 +12,8 @@ if [ ! -d "$TEMPLATE_PROJ" ]; then
   exit -1
 fi;
 
-if [ $(ls | grep -c "*zip$") -gt 0 ]; then
-  unzip *.zip
-  rm -rf *.zip
-  find . -type f -name "*png" | xargs optipng | grep decrease
-  find . -type f -exec dos2unix {} \; 2>  /dev/null
-fi
-
+unzip *.zip
+rm -rf *.zip
 
 MAP_NAME=$(basename $(pwd))
 if [ ! -d ".git" ]; then
@@ -28,13 +23,18 @@ fi
 
 git pull --rebase origin master
 
+find . -type f -name "*png" | xargs optipng 2> /dev/null
+find . -type f -exec dos2unix {} \; 2>  /dev/null
+
+set -e 
+
   ## create the readme if not already created
 if [ ! -e "README.md" ]; then
-
   echo "# ${MAP_NAME}" >> README.md
   git add README.md
   git commit README.md -m 'Initial commit with README.md file'
 fi;
+
   
   ## move files into a map folder if that has not yet been done
 if [ ! -d "map" ]; then
@@ -44,6 +44,11 @@ if [ ! -d "map" ]; then
   done;
   git add map
   git commit map -m "initial add of map files for $MAP_NAME"
+else
+  cd map
+  unzip *.zip
+  rm *.zip
+
 fi;
 
 function copyAndCommit() {
