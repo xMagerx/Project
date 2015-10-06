@@ -1,0 +1,22 @@
+#!/bin/bash
+
+
+ ## when setting up travis, ensure that there is not already a personal access token created.
+ ## if there is the travis set up script will fail with an authorization error.
+if [ -e ".travis.yml" ]; then
+  echo "Travis yml found, aborting."
+  exit 0
+else
+  echo "No travis yml found, creating it."
+fi
+
+touch .travis.yml
+
+travis setup releases
+NEW_KEY="$(grep secure .travis.yml)"
+
+sed "s|.*secure:.*|$NEW_KEY|" ../Project/templates/.travis.yml > .travis.yml
+
+git add .travis.yml
+git commit .travis.yml -m 'Add .travis.yml with secure token generated associated with the tripleabuilderbot account.'
+git push origin
