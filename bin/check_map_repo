@@ -1,6 +1,15 @@
 #!/bin/bash
 FAIL=0
 
+# todo
+### Check there are no spaces in any of the filenames
+### Check map images are all present
+#
+
+### Check Travis map version matches what is listed in the game XML
+### or alternatively check that the map version is not specificed in the game xml and is set as a variable.
+
+
 if [ ! -f ~/.github/personal_access_token ]; then
   echo "To check everything, we need a github access token. Place a copy of the text of a token that has at least"
   echo "org permissions to the following file: ~/.github/personal_access_token"
@@ -167,12 +176,10 @@ rm $TRAVIS_ENV
 
 
 
-### Check map images are all present
-
 if [ $FAIL == 1 ]; then
   echo "$REPO_NAME result: FAILED" 
   exit -1
 fi
 
-  echo "$REPO_NAME result: PASSED."
+echo "$REPO_NAME result: PASSED."
 exit 0
