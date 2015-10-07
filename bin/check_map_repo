@@ -1,0 +1,178 @@
+#!/bin/bash
+FAIL=0
+
+if [ ! -f ~/.github/personal_access_token ]; then
+  echo "To check everything, we need a github access token. Place a copy of the text of a token that has at least"
+  echo "org permissions to the following file: ~/.github/personal_access_token"
+  exit -1
+fi
+ACCESS_TOKEN=$(cat ~/.github/personal_access_token)
+
+
+REPO_NAME=$(basename $(pwd))
+echo "-- Checking $REPO_NAME"
+
+
+GITHUB_AUTH="Authorization: token $ACCESS_TOKEN"
+ORG_NAME="triplea-maps"
+MAP_ADMIN_TEAM_ID=1797261
+PAGING="?page=1&per_page=10000"
+
+TRAVIS_SLUG="$ORG_NAME/$REPO_NAME"
+TRAVIS_LOGIN="travis login -g $(cat ~/.github/personal_access_token)"
+if [ -f .travis.yml ]; then
+  $TRAVIS_LOGIN
+fi
+
+
+
+function fail() {
+   FAIL_MSG=$1
+   echo "$REPO_NAME - FAILED - $FAIL_MSG"
+   FAIL=1
+}
+
+### Check all expected files and folders are present
+function checkFileExists() {
+  FILE=$1
+
+  if [ ! -e "$FILE" ]; then
+    fail "File or folder missing: $FILE"
+  fi
+}
+
+GIT_FILES=".git .gitattributes .gitignore map .travis.yml build.gradle"
+MAP_FILES="map/place.txt map/polygons.txt map/polygons.txt map/baseTiles"
+
+for i in $GIT_FILES $MAP_FILES; do
+  checkFileExists $i
+done
+
+
+### check there is at least one game xml file
+if [ -d map/games ]; then
+  XML_COUNT=$(find map/games -name "*.xml" | grep -c "^")
+  if [ $XML_COUNT == 0 ]; then
+    fail "Found $XML_COUNT map xmls, expected at least one in map/games."
+  fi
+fi
+
+
+### Check that local folder contains no zip folders
+
+ZIP_COUNT=$(find . -name "*.zip" | wc -l)
+if [ $ZIP_COUNT -gt 0 ]; then
+  fail "Found ($ZIP_COUNT) zip files, expected zero."
+fi
+
+### Check remote origin repository has been set up
+
+if [ -d ".git" ]; then
+  REMOTE_ORIGIN_COUNT=$(git remote -v | grep -c "^origin.*git@github.com:${ORG_NAME}/$REPO_NAME.git")
+  if [ ! $REMOTE_ORIGIN_COUNT == 2 ]; then
+    fail "Did not find two remote origins with 'git remote -v', found: $REMOTE_ORIGIN_COUNT"
+  fi
+fi
+
+
+### Check github org has the repository
+GITHUB_ORG_REPO_COUNT=$(curl "https://api.github.com/orgs/${ORG_NAME}/repos?${PAGING}" 2>&1 | grep -c "full_name.*$TRAVIS_SLUG\"") 
+if [ $GITHUB_ORG_REPO_COUNT == 0 ]; then
+   fail "GitHub - Repository does not exist with GitHub organization ${ORG_NAME}"
+fi
+
+
+### Check admin team has been added to this repository
+
+ADMIN_TEAM_ADDED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/$MAP_ADMIN_TEAM_ID/repos?${PAGING}" 2>&1 | grep -c "clone_url.*$REPO_NAME.git")
+
+if [ $ADMIN_TEAM_ADDED == 0 ]; then
+  fail "GitHub Teams - Map admin team not added"
+fi
+
+### Check admin team has write access to this repository
+
+ADMIN_TEAM_PUSH_GRANTED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/1797261/repos?${PAGING}" 2>&1 | grep -A25 "clone_url.*$REPO_NAME.git" | grep -c "push.*true")
+
+if [ $ADMIN_TEAM_PUSH_GRANTED == 0 ]; then
+  fail "GitHub Teams - Map admin team write access not granted"
+fi
+
+
+### Check .travis.yml minimum length
+### Check .travis.yml file for expected keys
+
+
+function checkTravisKey() {
+  KEY_TO_CHECK=$1
+  KEY_COUNT=$(grep -c "$KEY_TO_CHECK:" .travis.yml)
+  if [ $KEY_COUNT == 0 ]; then
+     fail "Travis yml config - failed to find key $KEY_TO_CHECK"
+  fi 
+}
+
+function checkTravisValue() {
+  VALUE_TO_CHECK="$1"
+  VALUE_COUNT=$(grep -c "$VALUE_TO_CHECK" .travis.yml)
+  if [ $VALUE_COUNT == 0 ]; then
+     fail "Travis yml config - failed to find exact value: $VALUE_TO_CHECK"
+  fi
+}
+
+TRAVIS_YML_LENGTH=$(cat .travis.yml | sed '/^ *$/d' | grep -c "^")
+if [ -f ".travis.yml" ]; then
+  if [ $TRAVIS_YML_LENGTH -lt 20 ]; then
+    fail "Travis yml length is too short to be correct."
+  else
+    EXPECTED_TRAVIS_KEYS="language jdk script before_deploy deploy provider api_key secure file skip_cleanup prerelease"
+
+    for key in $EXPECTED_TRAVIS_KEYS; do
+      checkTravisKey $key   
+    done 
+
+    checkTravisValue "tags: false"
+    checkTravisValue "all_branches: true"
+    checkTravisValue "gradle zipMap"
+
+    ### check travis slug name is correct in the .git/config file
+    SLUG_COUNT=$(grep -c "slug = $TRAVIS_SLUG" .git/config)
+    if [ $SLUG_COUNT == 0 ]; then
+     fail "Travis Config - Did not find correct slug name in .git/config"
+    fi
+  
+    ### Check travis builds for a successful build
+    PASSED=$(travis status -r $TRAVIS_SLUG  | grep -c "passed$")
+    if [ $PASSED == 0 ]; then
+     fail "Travis Build - Last travis build did not succeed"
+    fi
+  fi
+fi
+  
+
+### Check Travis Variables Are Set Correctly
+TRAVIS_ENV=/tmp/travis_env.out.tmp.$(date +%s)
+travis env list -r $TRAVIS_SLUG > $TRAVIS_ENV
+
+
+TRAVIS_EXPECTED_ENV_VALUES="REPO_NAME=$REPO_NAME MAP_VERSION GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS"
+
+for envVariable in $TRAVIS_EXPECTED_ENV_VALUES; do
+  ENV_FOUND_COUNT=$(grep -c "$envVariable" $TRAVIS_ENV)
+  if [ $ENV_FOUND_COUNT == 0 ]; then
+   fail "Missing Travis Environment Variable: $envVariable"
+  fi
+done
+
+rm $TRAVIS_ENV
+
+
+
+### Check map images are all present
+
+if [ $FAIL == 1 ]; then
+  echo "$REPO_NAME result: FAILED" 
+  exit -1
+fi
+
+  echo "$REPO_NAME result: PASSED."
+exit 0
