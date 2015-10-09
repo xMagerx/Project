@@ -1,67 +1,40 @@
 #!/bin/bash
 
-WORK="$(basename "$0").tmp.$(date +%s)"
-mkdir "$WORK"
+clear 
+
+export bold=$(tput bold)
+export normal=$(tput sgr0)
+NC='\033[0m'
+PURPLE='\033[0;35m'
+BLUE='\033[0;34m'
+
+ORG_NAME=triplea-maps
+BOT_ACCOUNT=tripleabuilderbot
 
 
-bold=$(tput bold)
-normal=$(tput sgr0)
-#RED='\033[0;31m'
-#GREEN='\033[0;31m'
-#NC='\033[0m'
-
+SCRIPT_NAME=$(basename "$0")
 function usage() {
 
 cat << EOF
 
-${bold}Summary:${normal} Scans the current folder for any zip files. For each zip 
-   file, will create a github repository and extracts the contents of the zip file 
-   into a "map" folder. The script then finishes setting up the local git repo,
-   web configuration on github, and web configuration for Travis builds.
- 
-${bold}Usage:${normal} ./$(basename "$0") -g {token} -p {password}${normal}
-    token = github personal access token of an admin
-    password = github tripleabuilderbot account password
+Usage: ./$SCRIPT_NAME -g {path_to_token_file} -p {path_to_bot_password_file}
+Example: ./$SCRIPT_NAME -g ~/.github/personal_access_token -p ~/.github/builderbot_password
+    path_to_token_file = relative or absolute path to a file 
+             containing a GitHub admins personal access token.
+    path_to_bot_password_file = relative or absolute path to a 
+             file that contains the tripleabuilderbot
+             GitHub account password.
 
-${bold}Security Note:${normal} The bot account password will be displayed on standard 
-    out in plain text occasionally while this script is running. Be careful the screen
-    is locked if this script is left running anattended.
+TripleA Map Zip file to GitHub repository migration Tool
 
-${bold}Security Note:${normal} Sensitive information entered in on command line will
-    appear in your history. To avoid this, instead save your token value 
-    to: "~/personal_access_token" and password to: "~/bot_password".
-    Then run with: \$(basename "$0") -g \$(cat ~/personal_access_token) -p \$(cat ~/bot_password)
+Scans the current folder for any zip files. For each one, normalized the name, creates a folder to host the github repo, extracts the zip into a map folder inside of teh hosting folder. The script then copies in and configures the Git support files, it also then remotely configures GitHub.com and Travis.org.
 
-${bold}Sequence of events:${normal}
-
-Staging:
-- Create a folder whose name matches the zip
-- Normalize the name.
-
-GitHub:
-- create github repository
-- assign mapadmin team to the repository
-- start a travis sync in the background
-
-Local Git Setup:
-- Create a folder for the repo
-- Run git init inside of the folder
-- Create a readme and commit it
-- copy in support files: build.gradle, .gitattributes, .gitignore, commit and push
-- unzip the map into a map folder
-- run dos2unix and optipng
-- commit and push map folder
-
-Travis:
-- enable travis web project
-- create builder access token for the tag push
-- update travis web environment variables
-- copy in boilerplate .travis.yml
-- setup github releases with an expect script
-- fix up travis.yml file, commit and push
+Security Note: The bot account password will be displayed on standard 
+    out in plain text occasionally while this script is running.
 EOF
 exit 1
 }
+
 
 if [ $# == 0 ]; then
   usage
@@ -72,55 +45,397 @@ do
   key="$1"
   case $key in
     -g|--github-admin-token)
-      ADMIN_TOKEN="$2"
+      ADMIN_TOKEN_FILE="$2"
       shift 2
       ;;
     -p|--bot-account-password)
-      BOT_PASSWORD="$2"
+      BOT_PASSWORD_FILE="$2"
       shift 2
       ;;
+
     *)
-      echo "Unrecognized argument: $key"
+      echo "${bold}Unrecognized argument: $key${normal}"
       usage
       ;;
   esac
 done
 
 
+################
+
+
 function printTitle() {
-  echo -e "${bold}$1${normal}"
+  COLOR=$2
+  echo -e "${COLOR}${bold}$1${NC}"
 }
 
+function printBlueTitle() {
+  printTitle "$1" "${BLUE}"  
+}
+
+function printGreenTitle() {
+  printTitle "$1" "${PURPLE}"  
+}
+
+
 function die() {
-  printTitle "Script Error"
+  printTitle "Script Error $1"
   exit 1
 }
 
-function verifyExpectInstalled() {
-  hash expect 2> /dev/null || { echo "expect not installed"; exit 1; }
+
+function verifyDependency() {
+  DEPENDENCY=$1
+  hash "$DEPENDENCY" 2> /dev/null || { echo "expect not installed"; exit 1; }
+}
+
+function printZipFilesFound() {
+  echo
+  printBlueTitle "<<Starting>>"
+  printTitle "Found $(find . -maxdepth 1 -name '*zip' | wc -l) File(s)"
+  find . -maxdepth 1 -name '*zip' | sed 's|^./||'
+  echo
+}
+
+function checkFileExists() {
+  FILE_TO_CHECK=$1
+  if [ ! -f "$FILE_TO_CHECK" ]; then
+   die "Did not find file: $FILE_TO_CHECK"
+  fi
+}
+
+function checkNotEmpty() {
+  TOKEN=$1
+  if [ -z "$TOKEN" ]; then
+    die "empty token found in the password or token file supplied as parameters"
+  fi
 }
 
 function checkValidCredentials() {
-  printTitle "Verifying Parameters are Valid Credentials"
+  printTitle "Verifying GitHub credentials"
   local token=$1
-  local botPassword=$2
+  local botAccount=$2
+  local botPassword=$3
   
   DEAD=0
   echo -n "Admin -"
   curl --silent -u "${token}:x-oauth-basic" https://api.github.com/user | grep login || \
      { echo "Failed to authenticate against GitHub with the admin token provided."; DEAD=1; }
   echo -n "Bot   -"
-  curl --silent -u "tripleabuilderbot:${botPassword}" https://api.github.com/user | grep login || \
-     { echo "Failed to authenticate against GitHub with bot password provided."; DEAD=1; }
+  curl --silent -u "${botAccount}:${botPassword}" https://api.github.com/user | grep login || \
+     { echo "Failed to authenticate against GitHub with bot password token."; DEAD=1; }
   if [ "$DEAD" != 0 ]; then
    die
   fi
+  echo
 }
 
 
-verifyExpectInstalled
-checkValidCredentials "$ADMIN_TOKEN" "$BOT_PASSWORD"
+function normalizeName() {
+  local mapZip=$1
+     # normalization will:
+     #  - strip the zip sufix
+     #  - insert an underscore between lower case and upper case letter to break up camel casing
+     #  - lower case everything
+     #  - upper case first letter of all words
+     #  - replace spaces with underscores 
+  local normalized=$(echo "$mapZip" | sed 's/.zip$//' | \
+                sed 's/\([a-z]\)\([A-Z]\)/\1_\2/g' | tr '[:upper:]' '[:lower:]' | \
+                sed -r 's/\<./\U&/g' | sed "s/  */_/g" | sed 's/_\([a-z]\)/_\U\1/g' | sed 's|^\./||')
+  
+  echo "$normalized"
+}
 
-printTitle "Script Complete"
-rm -rf "$WORK"
+function extractMapToNormalizedFolder() {
+  local mapZip=$1
+  local targetFolder=$2
+    ## in the zip and folder name, remove the leading "./"
+  printTitle "Extracting zip"
+  
+  mkdir -p "$targetFolder"
+  UNZIP_COUNT=$(unzip -n "$mapZip" -d "${targetFolder}" 2>&1 | wc -l)
+  echo "Extracted $((UNZIP_COUNT-1)) files from '${mapZip//.\//}'"
+  echo ""
+}
 
+
+verifyDependency "expect"
+verifyDependency "parallel"
+
+
+printZipFilesFound
+
+checkFileExists "$ADMIN_TOKEN_FILE"
+checkFileExists "$BOT_PASSWORD_FILE"
+
+function curFolder() {
+(
+    NEW_FOLDER=$(dirname "$0")
+    cd "$NEW_FOLDER"
+    pwd
+  )
+}
+
+function deleteBotGitHubToken() {
+  local botPassword=$1
+  local tokenName=$2
+  
+  local botAuth="$BOT_ACCOUNT:$botPassword"
+  local oldTokenId=$(curl --silent -u "$botAuth" "$githubAuthUrl" 2>&1 | grep -B3 "\"name\": \"$tokenName\"" | grep id | sed 's|.*: ||g' | sed 's|,$||');
+  if [ ! -z "$oldTokenId" ]; then
+    curl -X DELETE -u "$botAuth" --silent "https://api.github.com/authorizations/$oldTokenId"
+  fi
+
+}
+
+ ## todo
+githubAuthUrl="https://api.github.com/authorizations"
+
+function resetTravisBotToken() {
+  local botPassword=$1
+  local tokenName=$2
+  deleteBotGitHubToken "$botPassword" "$tokenName"
+  
+  local botAuth="$BOT_ACCOUNT:$botPassword"
+
+  local newBotToken=$(curl --silent -d "{\"note\":\"$tokenName\", \"scopes\": [\"public_repo\"] }" \
+       -u "$botAuth" $githubAuthUrl 2>&1 | grep  "\"token\": " | sed 's|.*: "||' | sed 's|",$||');
+  travis env set GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS "$newBotToken"
+}
+
+function initTravis() {
+  printTitle "--Setting up Travis--"
+  export mapRepo=$1
+  local adminToken=$2
+  local botPassword=$3
+  if [ -f "$mapRepo/.travis.yml" ]; then
+    echo "Skipped: .travis.yml already exists"
+    echo
+    return
+  fi
+  (
+   cd "$mapRepo"
+   printTitle "Travis: Logging In" 
+   travis login -g "$adminToken"
+   travis sync
+
+   echo
+   printTitle "Travis: Setting Environment Values"
+   local tokenName="$mapRepo travis build script for tag pushing"
+   local travisValues=$(travis env -R "$ORG_NAME/$mapRepo" --org list)
+
+   echo "$travisValues" | grep "GITHUB_PERSONAL" || resetTravisBotToken "$botPassword" "$tokenName"
+   echo "$travisValues" | grep "REPO_NAME" || travis env set -P REPO_NAME "$mapRepo"
+   echo "$travisValues" | grep "MAP_VERSION" || travis env set -P MAP_VERSION 0
+
+   echo
+   printTitle "Travis Init and Enable"
+   "$SCRIPT_FOLDER/files/expect_scripts/travis_init.expect" "$ORG_NAME/$mapRepo"
+
+   echo
+   printTitle "Travis Init: Deleting Bot Push Tag Token"
+   local priorSetupToken=$(curl --silent -u "${BOT_ACCOUNT}:${botPassword}" "${githubAuthUrl}" 2>&1 | egrep -B3 "name.*The_Great" | grep "id" | sed 's|.*: ||' | sed 's|,$||')
+   if [ -z "$priorSetupToken" ]; then
+     echo "Skipped: prior token did not exist"
+   else
+      curl -s -X DELETE -u "${BOT_ACCOUNT}:$botPassword" "https://api.github.com/authorizations/$priorSetupToken"
+      echo "Deleted bot token $PRIOR_SETUP_TOKEN"
+   fi
+
+   echo
+   printTitle "Travis: Setup Releases" 
+   deleteBotGitHubToken "$botPassword" "automatic releases for $ORG_NAME/$mapRepo"
+   "$SCRIPT_FOLDER/files/expect_scripts/travis_releases.expect" "$ORG_NAME/$mapRepo" "$BOT_ACCOUNT" "$botPassword"
+
+   echo
+   printTitle "Travis: copy api key into template and commit"
+   local newKey="$(grep secure .travis.yml)"
+   sed "s|.*secure:.*|$newKey|" "$TRAVIS_TEMPLATE_FILE" > .travis.yml
+
+   git add .travis.yml
+   git commit .travis.yml -m 'Add map build configuration file: .travis.yml' | grep "^.master" 
+  )
+  echo
+}
+
+
+function createRemoteGitHubRepo() {
+  local REPO_NAME=$1
+  printTitle "Creating GitHub repository"
+
+  local repoUrl="https://api.github.com/orgs/$ORG_NAME/repos"
+  EXISTS_COUNT=$(curl --silent -H "${GITHUB_AUTH}" "${repoUrl}"?"${GITHUB_PAGE_ARGS}" |  grep -c "\"name\": \"$REPO_NAME\",$")
+  
+  if [ "$EXISTS_COUNT" == 0 ]; then
+    echo -n "Creating "
+    curl --silent -H "${GITHUB_AUTH}" ${repoUrl} -d "{ \"name\": \"$REPO_NAME\", \"private\": false}" | egrep -i "full_name|error|message" | sed 's/"//g' | sed 's/,$//g' | sed 's|^ *||'
+  else
+     echo "Skipped: repo already exists"
+  fi
+  echo
+}
+
+##
+# Two key git commands done in initRepo:
+# - git init
+# - git remote origin add
+##
+function initRepo() {
+  local repoName=$1
+  printTitle "Initializing local repo"
+  (
+   cd "$repoName"
+   if [ ! -d ".git" ]; then
+     git init
+   else
+     echo "Skipped: .git already exist"
+   fi
+ 
+   local CURL_RESULT=$(curl -H "${GITHUB_AUTH}" --silent https://api.github.com/repos/triplea-maps/"${repoName}"/branches)
+     ## if the remote has a master branch, then we should update before we create too much else that is new
+   grep -q master <<<"$CURL_RESULT" && git pull --rebase
+
+   REMOTE_COUNT=$(git remote -v | grep -c "origin")
+   if [ "$REMOTE_COUNT" == 0 ]; then
+     REMOTE_ORIGIN="git@github.com:${ORG_NAME}/$repoName.git"
+     git remote add origin "$REMOTE_ORIGIN" || die "failed to add remote origin $REMOTE_ORIGIN"
+     echo "Added remote origin ${REMOTE_ORIGIN}"
+  else
+     echo "Skipped: remote origin already exists"
+   fi
+  )
+  echo
+}
+
+function createReadme() {
+  printTitle "Repository init with readme file"
+  local repoName=$1
+  if [ ! -f "$repoName/README.md" ]; then
+   (
+    cd "$repoName"
+    echo "## $repoName" >> README.md
+    git add README.md
+    git commit -m 'Initial commit' 2>&1 | egrep -i "file changed"
+    git push origin -u master 2>&1
+   )
+  else
+    echo "Skipped: README.md already exists"
+  fi
+  echo
+}
+ 
+function addMapAdminTeam() {
+  printTitle "Adding map admin"
+  local mapRepo=$1
+
+  MAP_ADMIN_ID=$(curl -s -H "${GITHUB_AUTH}" https://api.github.com/orgs/triplea-maps/teams 2>&1 | grep -A1 "MapAdmins" | grep id | sed 's/.*: //g' | sed 's/,$//g')
+ 
+  if [[ ! "$MAP_ADMIN_ID" =~ [0-9]+ ]]; then
+     die "Failed to correctly parse map admin ID, value parsed is: $MAP_ADMIN_ID"
+  fi
+  MAP_ADMIN_TEAM_ADDED=$(curl -s -H "${GITHUB_AUTH}" "https://api.github.com/teams/${MAP_ADMIN_ID}/repos" 2>&1 | grep -c "name\": \"$mapRepo\"")
+
+
+  if [ "$MAP_ADMIN_TEAM_ADDED" == 0 ]; then
+    curl -X PUT -d "{\"permission\": \"push\"}" -H "${GITHUB_AUTH}" -H "Accept: application/vnd.github.ironman-preview+json" "https://api.github.com/teams/$MAP_ADMIN_ID/repos/${ORG_NAME}/$mapRepo"
+    echo "Map admin team added to repository"
+  else
+    echo "Skipping: map admin teams already added to the repository"
+  fi
+  echo
+}
+
+function copyStaticFile() {
+  local file=$1
+  local repoName=$2
+  cp "${SCRIPT_FOLDER}/files/static/$file" "$repoName"
+  (
+   cd "$repoName"
+   git add "$file"
+   git commit "$file" -m "Add project support file $file" | grep "^.master"
+  )   
+
+}
+
+function copyStaticFiles() {
+  printTitle "Copying static project files"
+  local repoName=$1
+  local updated=0
+
+  for fileName in $(ls -a "${SCRIPT_FOLDER}/files/static/" | egrep -v "^..?$"); do
+    if [ ! -f "$repoName/$fileName" ]; then
+       copyStaticFile "$fileName" "$repoName"
+       updated=1
+    else
+       echo "Skipped: file already exists $fileName"
+    fi
+  done;
+
+  if [ "$updated" == 1 ]; then
+   (
+    cd "$repoName"
+    git push origin
+   )
+  fi
+  echo
+}
+
+
+###########
+
+
+SCRIPT_FOLDER=$(curFolder)
+checkFileExists "${SCRIPT_FOLDER}/files/static/build.gradle"
+checkFileExists "${SCRIPT_FOLDER}/files/static/.gitattributes"
+checkFileExists "${SCRIPT_FOLDER}/files/static/.gitignore"
+
+TRAVIS_TEMPLATE_FILE="${SCRIPT_FOLDER}/files/templates/.travis.yml"
+checkFileExists "$TRAVIS_TEMPLATE_FILE"
+checkFileExists "${SCRIPT_FOLDER}/files/expect_scripts/travis_init.expect"
+checkFileExists "${SCRIPT_FOLDER}/files/expect_scripts/travis_releases.expect"
+
+
+ADMIN_TOKEN=$(head -1 "$ADMIN_TOKEN_FILE")
+checkNotEmpty "$ADMIN_TOKEN"
+GITHUB_AUTH="Authorization: token $ADMIN_TOKEN"
+GITHUB_PAGE_ARGS="page=1&per_page=10000"
+
+BOT_PASSWORD=$(head -1 "$BOT_PASSWORD_FILE")
+checkNotEmpty "$BOT_PASSWORD"
+checkValidCredentials "$ADMIN_TOKEN" "$BOT_ACCOUNT" "$BOT_PASSWORD"
+
+export -f printTitle
+export -f extractMapToNormalizedFolder
+
+MAP_COUNT=$(find . -maxdepth 1 -name "*zip" | wc -l)
+COUNT=0
+find . -maxdepth 1 -name "*zip" | while read zipFile; do
+ COUNT=$((COUNT+1)) 
+ NORMALIZED_NAME=$(normalizeName "$zipFile")
+ printGreenTitle "Processing Map ($COUNT of $MAP_COUNT): $NORMALIZED_NAME"
+ extractMapToNormalizedFolder "$zipFile" "$NORMALIZED_NAME/map"
+
+ # kick off in background optipng
+ # kick off in background conversion of wav files to mp3
+
+ createRemoteGitHubRepo "$NORMALIZED_NAME"
+ initRepo "$NORMALIZED_NAME"
+ createReadme "$NORMALIZED_NAME"
+
+ addMapAdminTeam "$NORMALIZED_NAME"
+ initTravis "$NORMALIZED_NAME" "$ADMIN_TOKEN" "$BOT_PASSWORD"
+ copyStaticFiles "$NORMALIZED_NAME"
+done
+
+
+printBlueTitle "<<Done>>"
+
+exit 0
+
+
+#Local Git Setup:
+#- run dos2unix and optipng on maps folder
+#- commit and push map folder
+
+#Travis:
+#- do travis stuff in background
