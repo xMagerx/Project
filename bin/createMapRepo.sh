@@ -215,8 +215,7 @@ function initTravis() {
   fi
   (
    cd "$mapRepo"
-   printTitle "Travis: Logging In" 
-   travis login -g "$adminToken"
+   printTitle "Travis: sync"
    travis sync
 
    echo
@@ -403,6 +402,10 @@ GITHUB_PAGE_ARGS="page=1&per_page=10000"
 BOT_PASSWORD=$(head -1 "$BOT_PASSWORD_FILE")
 checkNotEmpty "$BOT_PASSWORD"
 checkValidCredentials "$ADMIN_TOKEN" "$BOT_ACCOUNT" "$BOT_PASSWORD"
+
+echo
+printTitle "Do Travis Login"
+travis login -g "$adminToken"
 
 export -f printTitle
 export -f extractMapToNormalizedFolder
