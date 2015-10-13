@@ -206,8 +206,7 @@ function resetTravisBotToken() {
 function initTravis() {
   printTitle "--Setting up Travis--"
   export mapRepo=$1
-  local adminToken=$2
-  local botPassword=$3
+  local botPassword=$2
   if [ -f "$mapRepo/.travis.yml" ]; then
     echo "Skipped: .travis.yml already exists"
     echo
@@ -405,7 +404,8 @@ checkValidCredentials "$ADMIN_TOKEN" "$BOT_ACCOUNT" "$BOT_PASSWORD"
 
 echo
 printTitle "Do Travis Login"
-travis login -g "$adminToken"
+
+travis login -g "$ADMIN_TOKEN"
 
 export -f printTitle
 export -f extractMapToNormalizedFolder
@@ -430,7 +430,7 @@ find . -maxdepth 1 -name "*zip" | while read zipFile; do
  echo
 
  addMapAdminTeam "$NORMALIZED_NAME"
- initTravis "$NORMALIZED_NAME" "$ADMIN_TOKEN" "$BOT_PASSWORD"
+ initTravis "$NORMALIZED_NAME" "$BOT_PASSWORD"
  copyStaticFiles "$NORMALIZED_NAME"
  runOptiPng "$NORMALIZED_NAME"
  commitAndPushMapFiles "$NORMALIZED_NAME" &
