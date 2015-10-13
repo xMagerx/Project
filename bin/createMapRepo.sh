@@ -311,7 +311,7 @@ function createReadme() {
     echo "## $repoName" >> README.md
     git add README.md
     git commit -m 'Initial commit' 2>&1 | egrep -i "file changed"
-    git push origin -u master 2>&1 &
+    git push origin -u master 2>&1
    )
   else
     echo "Skipped: README.md already exists"
@@ -386,7 +386,7 @@ function commitAndPushMapFiles() {
    git add map
    git commit map -m 'add map files' | grep master
    git push origin master
-  )  
+  ) & 
   echo
 }
 
