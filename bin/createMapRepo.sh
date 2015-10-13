@@ -1,7 +1,6 @@
 #!/bin/bash
 
 clear 
-START_TIME=$(date +%s)
 
 export bold=$(tput bold)
 export normal=$(tput sgr0)
@@ -418,6 +417,7 @@ export -f extractMapToNormalizedFolder
 MAP_COUNT=$(find . -maxdepth 1 -name "*zip" | wc -l)
 COUNT=0
 find . -maxdepth 1 -name "*zip" | while read zipFile; do
+ START_TIME=$(date +%s)
  COUNT=$((COUNT+1)) 
  NORMALIZED_NAME=$(normalizeName "$zipFile")
  printGreenTitle "Processing Map ($COUNT of $MAP_COUNT): $NORMALIZED_NAME"
@@ -439,10 +439,11 @@ find . -maxdepth 1 -name "*zip" | while read zipFile; do
  copyStaticFiles "$NORMALIZED_NAME"
  runOptiPng "$NORMALIZED_NAME"
  commitAndPushMapFiles "$NORMALIZED_NAME"
+ printBlueTitle "<$NORMALIZED_NAME processed in $((END_TIME-START_TIME))s>"
 done
 
 END_TIME=$(date +%s)
-printBlueTitle "<<Done in $((END_TIME-START_TIME))s>>"
+printBlueTitle "<<Done>>"
 
 exit 0
 
