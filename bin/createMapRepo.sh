@@ -85,7 +85,7 @@ function die() {
 
 
 function verifyDependency() {
-  DEPENDENCY=$1
+  local DEPENDENCY=$1
   hash "$DEPENDENCY" 2> /dev/null || { echo "expect not installed"; exit 1; }
 }
 
@@ -98,14 +98,14 @@ function printZipFilesFound() {
 }
 
 function checkFileExists() {
-  FILE_TO_CHECK=$1
+  local FILE_TO_CHECK=$1
   if [ ! -f "$FILE_TO_CHECK" ]; then
    die "Did not find file: $FILE_TO_CHECK"
   fi
 }
 
 function checkNotEmpty() {
-  TOKEN=$1
+  local TOKEN=$1
   if [ -z "$TOKEN" ]; then
     die "empty token found in the password or token file supplied as parameters"
   fi
@@ -170,7 +170,7 @@ checkFileExists "$BOT_PASSWORD_FILE"
 
 function curFolder() {
 (
-    NEW_FOLDER=$(dirname "$0")
+    local NEW_FOLDER=$(dirname "$0")
     cd "$NEW_FOLDER"
     pwd
   )
@@ -328,7 +328,7 @@ function addMapAdminTeam() {
   if [[ ! "$MAP_ADMIN_ID" =~ [0-9]+ ]]; then
      die "Failed to correctly parse map admin ID, value parsed is: $MAP_ADMIN_ID"
   fi
-  MAP_ADMIN_TEAM_ADDED=$(curl -s -H "${GITHUB_AUTH}" "https://api.github.com/teams/${MAP_ADMIN_ID}/repos" 2>&1 | grep -c "name\": \"$mapRepo\"")
+  local MAP_ADMIN_TEAM_ADDED=$(curl -s -H "${GITHUB_AUTH}" "https://api.github.com/teams/${MAP_ADMIN_ID}/repos" 2>&1 | grep -c "name\": \"$mapRepo\"")
 
 
   if [ "$MAP_ADMIN_TEAM_ADDED" == 0 ]; then
@@ -425,7 +425,6 @@ find . -maxdepth 1 -name "*zip" | while read zipFile; do
  printGreenTitle "Processing Map ($COUNT of $MAP_COUNT): $NORMALIZED_NAME"
  extractMapToNormalizedFolder "$zipFile" "$NORMALIZED_NAME/map"
 
- # kick off in background optipng
  # kick off in background conversion of wav files to mp3
 
  createRemoteGitHubRepo "$NORMALIZED_NAME"
