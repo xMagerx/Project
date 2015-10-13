@@ -386,7 +386,7 @@ function commitAndPushMapFiles() {
    git add map
    git commit map -m 'add map files' | grep master
    git push origin master
-  ) & 
+  )
   echo
 }
 
@@ -439,11 +439,11 @@ find . -maxdepth 1 -name "*zip" | while read zipFile; do
  initTravis "$NORMALIZED_NAME" "$ADMIN_TOKEN" "$BOT_PASSWORD"
  copyStaticFiles "$NORMALIZED_NAME"
  runOptiPng "$NORMALIZED_NAME"
- commitAndPushMapFiles "$NORMALIZED_NAME"
+ commitAndPushMapFiles "$NORMALIZED_NAME" &
+ END_TIME=$(date +%s)
  printBlueTitle "<$NORMALIZED_NAME processed in $((END_TIME-START_TIME))s>"
 done
 
-END_TIME=$(date +%s)
 printBlueTitle "<<Done>>"
 
 exit 0
