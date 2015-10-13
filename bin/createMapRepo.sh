@@ -222,7 +222,7 @@ function initTravis() {
 
    echo
    printTitle "Travis: Setting Environment Values"
-   local tokenName="$mapRepo travis build script for tag pushing"
+   local tokenName="automatic releases for ${ORG_NAME}/$mapRepo (tag pushes)"
    local travisValues=$(travis env -R "$ORG_NAME/$mapRepo" --org list)
 
    echo "$travisValues" | grep "GITHUB_PERSONAL" || resetTravisBotToken "$botPassword" "$tokenName"
