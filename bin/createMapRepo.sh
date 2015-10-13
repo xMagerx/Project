@@ -181,7 +181,7 @@ function deleteBotGitHubToken() {
   local tokenName=$2
   
   local botAuth="$BOT_ACCOUNT:$botPassword"
-  local oldTokenId=$(curl --silent -u "$botAuth" "$githubAuthUrl" 2>&1 | grep -B3 "\"name\": \"$tokenName\"" | grep id | sed 's|.*: ||g' | sed 's|,$||');
+  local oldTokenId=$(curl --silent -u "$botAuth" "$githubAuthUrl" 2>&1 | grep -i -B3 "\"name\": \"$tokenName\"" | grep id | sed 's|.*: ||g' | sed 's|,$||');
   if [ ! -z "$oldTokenId" ]; then
     curl -X DELETE -u "$botAuth" --silent "https://api.github.com/authorizations/$oldTokenId"
   fi
@@ -234,7 +234,7 @@ function initTravis() {
 
    echo
    printTitle "Travis Init: Deleting Bot Push Tag Token"
-   local priorSetupToken=$(curl --silent -u "${BOT_ACCOUNT}:${botPassword}" "${githubAuthUrl}" 2>&1 | egrep -B3 "name.*The_Great" | grep "id" | sed 's|.*: ||' | sed 's|,$||')
+   local priorSetupToken=$(curl --silent -u "${BOT_ACCOUNT}:${botPassword}" "${githubAuthUrl}" 2>&1 | egrep -B3 -i "name.*$mapRepo" | grep "id" | sed 's|.*: ||' | sed 's|,$||')
    if [ -z "$priorSetupToken" ]; then
      echo "Skipped: prior token did not exist"
    else
