@@ -9,13 +9,14 @@ FAIL=0
 ### Check Travis map version matches what is listed in the game XML
 ### or alternatively check that the map version is not specificed in the game xml and is set as a variable.
 
+ACCESS_TOKEN_FILE=$1
 
-if [ ! -f ~/.github/personal_access_token ]; then
+if [ ! -f "$ACCESS_TOKEN_FILE" ]; then
   echo "To check everything, we need a github access token. Place a copy of the text of a token that has at least"
-  echo "org permissions to the following file: ~/.github/personal_access_token"
+  echo "org permissions to a file, pass that file path as a parameter to this script."
   exit -1
 fi
-ACCESS_TOKEN=$(cat ~/.github/personal_access_token)
+ACCESS_TOKEN=$(cat $ACCESS_TOKEN_FILE)
 
 
 REPO_NAME=$(basename $(pwd))
@@ -28,7 +29,7 @@ MAP_ADMIN_TEAM_ID=1797261
 PAGING="?page=1&per_page=10000"
 
 TRAVIS_SLUG="$ORG_NAME/$REPO_NAME"
-TRAVIS_LOGIN="travis login -g $(cat ~/.github/personal_access_token)"
+TRAVIS_LOGIN="travis login -g $ACCESS_TOKEN"
 if [ -f .travis.yml ]; then
   $TRAVIS_LOGIN
 fi
