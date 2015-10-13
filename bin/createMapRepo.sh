@@ -1,6 +1,7 @@
 #!/bin/bash
 
 clear 
+START_TIME=$(date +%s)
 
 export bold=$(tput bold)
 export normal=$(tput sgr0)
@@ -245,7 +246,7 @@ function initTravis() {
    echo
    printTitle "Travis: Setup Releases" 
    deleteBotGitHubToken "$botPassword" "automatic releases for $ORG_NAME/$mapRepo"
-   "$SCRIPT_FOLDER/files/expect_scripts/travis_releases.expect" "$ORG_NAME/$mapRepo" "$BOT_ACCOUNT" "$botPassword"
+   "$SCRIPT_FOLDER/files/expect_scripts/travis_releases.expect" "$ORG_NAME/$mapRepo" "$BOT_ACCOUNT" "$botPassword" | tail -n +2
 
    echo
    printTitle "Travis: copy api key into template and commit"
@@ -275,11 +276,6 @@ function createRemoteGitHubRepo() {
   echo
 }
 
-##
-# Two key git commands done in initRepo:
-# - git init
-# - git remote origin add
-##
 function initRepo() {
   local repoName=$1
   printTitle "Initializing local repo"
@@ -291,18 +287,18 @@ function initRepo() {
      echo "Skipped: .git already exist"
    fi
  
-   local CURL_RESULT=$(curl -H "${GITHUB_AUTH}" --silent https://api.github.com/repos/triplea-maps/"${repoName}"/branches)
-     ## if the remote has a master branch, then we should update before we create too much else that is new
-   grep -q master <<<"$CURL_RESULT" && git pull --rebase
-
    REMOTE_COUNT=$(git remote -v | grep -c "origin")
    if [ "$REMOTE_COUNT" == 0 ]; then
      REMOTE_ORIGIN="git@github.com:${ORG_NAME}/$repoName.git"
-     git remote add origin "$REMOTE_ORIGIN" || die "failed to add remote origin $REMOTE_ORIGIN"
+     git remote add origin "$REMOTE_ORIGIN"
      echo "Added remote origin ${REMOTE_ORIGIN}"
-  else
+   else
      echo "Skipped: remote origin already exists"
    fi
+   git fetch origin
+   curl -s -H "${GITHUB_AUTH}" https://api.github.com/repos/${ORG_NAME}/"${repoName}"/branches 2>&1 | \
+     grep -q "\"master\"" && git checkout master && git branch --set-upstream-to=origin/master master 
+   git pull --rebase origin master
   )
   echo
 }
@@ -360,7 +356,6 @@ function copyStaticFile() {
 function copyStaticFiles() {
   printTitle "Copying static project files"
   local repoName=$1
-  local updated=0
 
   for fileName in $(ls -a "${SCRIPT_FOLDER}/files/static/" | egrep -v "^..?$"); do
     if [ ! -f "$repoName/$fileName" ]; then
@@ -371,15 +366,28 @@ function copyStaticFiles() {
     fi
   done;
 
-  if [ "$updated" == 1 ]; then
-   (
-    cd "$repoName"
-    git push origin
-   )
-  fi
   echo
 }
 
+function runOptiPng() {
+  local mapRepo=$1
+  printTitle "Running optiPng ($(find $mapRepo -name "*.png" | wc -l) files)"
+  parallel optipng {} 2>&1 < <(find $mapRepo -name "*.png") | grep -i "error"
+  echo "Done"
+  echo
+}
+
+function commitAndPushMapFiles() {
+  local mapRepo=$1
+  printTitle "Commit map files and push"
+  (
+   cd $mapRepo
+   git add map
+   git commit map -m 'add map files' | grep master
+   git push origin master
+  )  
+  echo
+}
 
 ###########
 
@@ -421,21 +429,20 @@ find . -maxdepth 1 -name "*zip" | while read zipFile; do
  createRemoteGitHubRepo "$NORMALIZED_NAME"
  initRepo "$NORMALIZED_NAME"
  createReadme "$NORMALIZED_NAME"
+ printTitle "Cleaning up line endings"
+ find "$NORMALIZED_NAME" -type f -not -name "*.png" -not -name "*.jpeg" -not -name "*.pdg" -not -name "*jpg" -not -name "*gif" | \
+       grep -v "^$NORMALIZED_NAME/.git/" | xargs dos2unix 2>&1 | egrep -o "converting|not a regular file|No such file" | sort | uniq -c
+ echo
 
  addMapAdminTeam "$NORMALIZED_NAME"
  initTravis "$NORMALIZED_NAME" "$ADMIN_TOKEN" "$BOT_PASSWORD"
  copyStaticFiles "$NORMALIZED_NAME"
+ runOptiPng "$NORMALIZED_NAME"
+ commitAndPushMapFiles "$NORMALIZED_NAME"
 done
 
-
-printBlueTitle "<<Done>>"
+END_TIME=$(date +%s)
+printBlueTitle "<<Done in $((END_TIME-START_TIME))s>>"
 
 exit 0
 
-
-#Local Git Setup:
-#- run dos2unix and optipng on maps folder
-#- commit and push map folder
-
-#Travis:
-#- do travis stuff in background
