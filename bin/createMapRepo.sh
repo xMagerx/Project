@@ -141,7 +141,7 @@ function normalizeName() {
      #  - replace spaces with underscores 
   local normalized=$(echo "$mapZip" | sed 's/.zip$//' | \
                 sed 's/\([a-z]\)\([A-Z]\)/\1_\2/g' | tr '[:upper:]' '[:lower:]' | \
-                sed -r 's/\<./\U&/g' | sed "s/  */_/g" | sed 's|^\./||')
+                sed "s/  */_/g" | sed 's|^\./||')
   
   echo "$normalized"
 }
@@ -311,7 +311,7 @@ function createReadme() {
     echo "## $repoName" >> README.md
     git add README.md
     git commit -m 'Initial commit' 2>&1 | egrep -i "file changed"
-    git push origin -u master 2>&1
+    git push origin -u master 2>&1 &
    )
   else
     echo "Skipped: README.md already exists"
