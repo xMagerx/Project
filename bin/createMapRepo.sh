@@ -141,7 +141,7 @@ function normalizeName() {
      #  - replace spaces with underscores 
   local normalized=$(echo "$mapZip" | sed 's/.zip$//' | \
                 sed 's/\([a-z]\)\([A-Z]\)/\1_\2/g' | tr '[:upper:]' '[:lower:]' | \
-                sed -r 's/\<./\U&/g' | sed "s/  */_/g" | sed 's/_\([a-z]\)/_\U\1/g' | sed 's|^\./||')
+                sed -r 's/\<./\U&/g' | sed "s/  */_/g" | sed 's|^\./||')
   
   echo "$normalized"
 }
@@ -372,6 +372,8 @@ function runOptiPng() {
   local mapRepo=$1
   printTitle "Running optiPng ($(find $mapRepo -name "*.png" | wc -l) files)"
   parallel optipng {} 2>&1 < <(find $mapRepo -name "*.png") | grep -i "error"
+  echo "Re-run optipng with fix flag to be sure we got everything"
+  parallel optipng -fix {} 2>&1 < <(find $mapRepo -name "*.png") | grep -i "error"
   echo "Done"
   echo
 }
