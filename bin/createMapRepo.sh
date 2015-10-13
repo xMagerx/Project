@@ -232,15 +232,6 @@ function initTravis() {
    printTitle "Travis Init and Enable"
    "$SCRIPT_FOLDER/files/expect_scripts/travis_init.expect" "$ORG_NAME/$mapRepo"
 
-   echo
-   printTitle "Travis Init: Deleting Bot Push Tag Token"
-   local priorSetupToken=$(curl --silent -u "${BOT_ACCOUNT}:${botPassword}" "${githubAuthUrl}" 2>&1 | egrep -B3 -i "name.*$mapRepo" | grep "id" | sed 's|.*: ||' | sed 's|,$||')
-   if [ -z "$priorSetupToken" ]; then
-     echo "Skipped: prior token did not exist"
-   else
-      curl -s -X DELETE -u "${BOT_ACCOUNT}:$botPassword" "https://api.github.com/authorizations/$priorSetupToken"
-      echo "Deleted bot token $PRIOR_SETUP_TOKEN"
-   fi
 
    echo
    printTitle "Travis: Setup Releases" 
