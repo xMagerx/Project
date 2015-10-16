@@ -5,21 +5,64 @@ FAIL=0
 ### Check there are no spaces in any of the filenames
 ### Check map images are all present
 #
-
 ### Check Travis map version matches what is listed in the game XML
 ### or alternatively check that the map version is not specificed in the game xml and is set as a variable.
 
-ACCESS_TOKEN_FILE=$1
 
-if [ ! -f "$ACCESS_TOKEN_FILE" ]; then
-  echo "To check everything, we need a github access token. Place a copy of the text of a token that has at least"
-  echo "org permissions to a file, pass that file path as a parameter to this script."
-  exit -1
+function usage() {
+  
+  echo "usage: $(basename $0) -t <token_file> -m <map_repository>"
+  echo "   token: a file containing one line, a github personal access token."
+  echo "   map_repository: relative path to a local map repository clone."
+  exit 1
+}
+
+
+if [ $# == 0 ]; then
+  usage
 fi
-ACCESS_TOKEN=$(cat $ACCESS_TOKEN_FILE)
+
+while [[ $# -gt 1 ]]
+do
+  key="$1"
+  case $key in
+    -t|--token)
+      TOKEN_FILE="$2"
+      shift 2
+      if [ ! -f "$TOKEN_FILE" ]; then
+        echo "Error, not a file: $TOKEN_FILE"
+        usage
+        exit 1
+      fi
+
+      ACCESS_TOKEN=$(cat $TOKEN_FILE)
+      if [ -z "$ACCESS_TOKEN" ]; then
+        echo "Error, no token found in: $TOKEN_FILE"
+      exit 1 
+      fi
+     
+      curl --silent -u "${ACCESS_TOKEN}:x-oauth-basic" https://api.github.com/user | grep -q login || \
+        { echo "Failed to authenticate against GitHub with the admin token provided."; exit 1; }
+      ;;
+    -m|--map)
+      MAP="$2"
+      shift 2
+      if [ ! -d "$MAP" ]; then
+        echo "Error, not a folder: $MAP"
+        exit 1
+      fi
+      MAP=$(echo $MAP | sed 's|^\./||')
+      ;;
+    *)
+      echo "${bold}Unrecognized argument: $key${normal}"
+      usage
+      ;;
+  esac
+done
 
 
-REPO_NAME=$(basename $(pwd))
+
+REPO_NAME=$(MAP)
 echo "-- Checking $REPO_NAME"
 
 
