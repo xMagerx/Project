@@ -10,6 +10,7 @@ BLUE='\033[0;34m'
 
 ORG_NAME=triplea-maps
 BOT_ACCOUNT=tripleabuilderbot
+MAP_ADMIN_TEAM_NAME="MapAdmins"
 
 
 SCRIPT_NAME=$(basename "$0")
@@ -159,8 +160,6 @@ function extractMapToNormalizedFolder() {
 }
 
 
-verifyDependency "expect"
-verifyDependency "parallel"
 
 
 printZipFilesFound
@@ -228,13 +227,13 @@ function initTravis() {
 
    echo
    printTitle "Travis Init and Enable"
-   "$SCRIPT_FOLDER/files/expect_scripts/travis_init.expect" "$ORG_NAME/$mapRepo"
+   "$FILES_FOLDER/files/expect_scripts/travis_init.expect" "$ORG_NAME/$mapRepo"
 
 
    echo
    printTitle "Travis: Setup Releases" 
    deleteBotGitHubToken "$botPassword" "automatic releases for $ORG_NAME/$mapRepo"
-   "$SCRIPT_FOLDER/files/expect_scripts/travis_releases.expect" "$ORG_NAME/$mapRepo" "$BOT_ACCOUNT" "$botPassword" | tail -n +2
+   "$FILES_FOLDER/files/expect_scripts/travis_releases.expect" "$ORG_NAME/$mapRepo" "$BOT_ACCOUNT" "$botPassword" | tail -n +2
 
    echo
    printTitle "Travis: copy api key into template and commit"
@@ -312,10 +311,12 @@ function addMapAdminTeam() {
   printTitle "Adding map admin"
   local mapRepo=$1
 
-  MAP_ADMIN_ID=$(curl -s -H "${GITHUB_AUTH}" https://api.github.com/orgs/triplea-maps/teams 2>&1 | grep -A1 "MapAdmins" | grep id | sed 's/.*: //g' | sed 's/,$//g')
+
+  local MAP_ADMIN_ID=$(curl -s -H "${GITHUB_AUTH}" https://api.github.com/orgs/triplea-maps/teams 2>&1 | grep -A1 "$MAP_ADMIN_TEAM_NAME" | grep id | sed 's/.*: //g' | sed 's/,$//g')
  
   if [[ ! "$MAP_ADMIN_ID" =~ [0-9]+ ]]; then
      die "Failed to correctly parse map admin ID, value parsed is: $MAP_ADMIN_ID"
+     curl -s -H "${GITHUB_AUTH}" https://api.github.com/orgs/triplea-maps/teams 2>&1 | grep -C3 "$MAP_ADMIN_TEAM_NAME"
   fi
   local MAP_ADMIN_TEAM_ADDED=$(curl -s -H "${GITHUB_AUTH}" "https://api.github.com/teams/${MAP_ADMIN_ID}/repos" 2>&1 | grep -c "name\": \"$mapRepo\"")
 
@@ -332,7 +333,7 @@ function addMapAdminTeam() {
 function copyStaticFile() {
   local file=$1
   local repoName=$2
-  cp "${SCRIPT_FOLDER}/files/static/$file" "$repoName"
+  cp "${FILES_FOLDER}/static/$file" "$repoName"
   (
    cd "$repoName"
    git add "$file"
@@ -345,7 +346,7 @@ function copyStaticFiles() {
   printTitle "Copying static project files"
   local repoName=$1
 
-  for fileName in $(ls -a "${SCRIPT_FOLDER}/files/static/" | egrep -v "^..?$"); do
+  for fileName in $(ls -a "${FILES_FOLDER}/static/" | egrep -v "^..?$"); do
     if [ ! -f "$repoName/$fileName" ]; then
        copyStaticFile "$fileName" "$repoName"
        updated=1
@@ -361,8 +362,6 @@ function runOptiPng() {
   local mapRepo=$1
   printTitle "Running optiPng ($(find $mapRepo -name "*.png" | wc -l) files)"
   parallel optipng {} 2>&1 < <(find $mapRepo -name "*.png") | grep -i "error"
-  echo "Re-run optipng with fix flag to be sure we got everything"
-  parallel optipng -fix {} 2>&1 < <(find $mapRepo -name "*.png") | grep -i "error"
   echo "Done"
   echo
 }
@@ -382,15 +381,18 @@ function commitAndPushMapFiles() {
 ###########
 
 
-SCRIPT_FOLDER=$(curFolder)
-checkFileExists "${SCRIPT_FOLDER}/files/static/build.gradle"
-checkFileExists "${SCRIPT_FOLDER}/files/static/.gitattributes"
-checkFileExists "${SCRIPT_FOLDER}/files/static/.gitignore"
+verifyDependency "expect"
+verifyDependency "parallel"
 
-TRAVIS_TEMPLATE_FILE="${SCRIPT_FOLDER}/files/templates/.travis.yml"
+FILES_FOLDER="$(curFolder)/files"
+
+checkFileExists "${FILES_FOLDER}/static/build.gradle"
+checkFileExists "${FILES_FOLDER}/static/.gitignore"
+
+TRAVIS_TEMPLATE_FILE="${FILES_FOLDER}/templates/.travis.yml"
 checkFileExists "$TRAVIS_TEMPLATE_FILE"
-checkFileExists "${SCRIPT_FOLDER}/files/expect_scripts/travis_init.expect"
-checkFileExists "${SCRIPT_FOLDER}/files/expect_scripts/travis_releases.expect"
+checkFileExists "${FILES_FOLDER}/expect_scripts/travis_init.expect"
+checkFileExists "${FILES_FOLDER}/expect_scripts/travis_releases.expect"
 
 
 ADMIN_TOKEN=$(head -1 "$ADMIN_TOKEN_FILE")
@@ -419,7 +421,7 @@ find . -maxdepth 1 -name "*zip" | while read zipFile; do
  printGreenTitle "Processing Map ($COUNT of $MAP_COUNT): $NORMALIZED_NAME"
  extractMapToNormalizedFolder "$zipFile" "$NORMALIZED_NAME/map"
 
- # kick off in background conversion of wav files to mp3
+ # todo: kick off in background conversion of wav files to mp3
 
  createRemoteGitHubRepo "$NORMALIZED_NAME"
  initRepo "$NORMALIZED_NAME"
