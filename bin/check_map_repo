@@ -62,30 +62,30 @@ done
 
 
 
-REPO_NAME=$(MAP)
-echo "-- Checking $REPO_NAME"
-
 
 GITHUB_AUTH="Authorization: token $ACCESS_TOKEN"
 ORG_NAME="triplea-maps"
 MAP_ADMIN_TEAM_ID=1797261
 PAGING="?page=1&per_page=10000"
 
-TRAVIS_SLUG="$ORG_NAME/$REPO_NAME"
+TRAVIS_SLUG="$ORG_NAME/$MAP"
 TRAVIS_LOGIN="travis login -g $ACCESS_TOKEN"
 if [ -f .travis.yml ]; then
   $TRAVIS_LOGIN
 fi
 
 
-
 function fail() {
    FAIL_MSG=$1
-   echo "$REPO_NAME - FAILED - $FAIL_MSG"
+   echo "$MAP - FAILED - $FAIL_MSG"
    FAIL=1
 }
 
-### Check all expected files and folders are present
+echo "-- Checking $MAP"
+
+##
+## Check all expected files and folders are present
+##
 function checkFileExists() {
   FILE=$1
 
@@ -94,15 +94,16 @@ function checkFileExists() {
   fi
 }
 
-GIT_FILES=".git .gitattributes .gitignore map .travis.yml build.gradle"
+GIT_FILES=".git .gitignore map .travis.yml build.gradle"
 MAP_FILES="map/place.txt map/polygons.txt map/polygons.txt map/baseTiles"
 
 for i in $GIT_FILES $MAP_FILES; do
-  checkFileExists $i
+  checkFileExists $MAP/$i
 done
 
-
-### check there is at least one game xml file
+##
+## check there is at least one game xml file
+##
 if [ -d map/games ]; then
   XML_COUNT=$(find map/games -name "*.xml" | grep -c "^")
   if [ $XML_COUNT == 0 ]; then
@@ -121,7 +122,7 @@ fi
 ### Check remote origin repository has been set up
 
 if [ -d ".git" ]; then
-  REMOTE_ORIGIN_COUNT=$(git remote -v | grep -c "^origin.*git@github.com:${ORG_NAME}/$REPO_NAME.git")
+  REMOTE_ORIGIN_COUNT=$(git remote -v | grep -c "^origin.*git@github.com:${ORG_NAME}/$MAP.git")
   if [ ! $REMOTE_ORIGIN_COUNT == 2 ]; then
     fail "Did not find two remote origins with 'git remote -v', found: $REMOTE_ORIGIN_COUNT"
   fi
@@ -137,7 +138,7 @@ fi
 
 ### Check admin team has been added to this repository
 
-ADMIN_TEAM_ADDED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/$MAP_ADMIN_TEAM_ID/repos?${PAGING}" 2>&1 | grep -c "clone_url.*$REPO_NAME.git")
+ADMIN_TEAM_ADDED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/$MAP_ADMIN_TEAM_ID/repos?${PAGING}" 2>&1 | grep -c "clone_url.*$MAP.git")
 
 if [ $ADMIN_TEAM_ADDED == 0 ]; then
   fail "GitHub Teams - Map admin team not added"
@@ -145,7 +146,7 @@ fi
 
 ### Check admin team has write access to this repository
 
-ADMIN_TEAM_PUSH_GRANTED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/1797261/repos?${PAGING}" 2>&1 | grep -A25 "clone_url.*$REPO_NAME.git" | grep -c "push.*true")
+ADMIN_TEAM_PUSH_GRANTED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/1797261/repos?${PAGING}" 2>&1 | grep -A25 "clone_url.*$MAP.git" | grep -c "push.*true")
 
 if [ $ADMIN_TEAM_PUSH_GRANTED == 0 ]; then
   fail "GitHub Teams - Map admin team write access not granted"
@@ -207,7 +208,7 @@ TRAVIS_ENV=/tmp/travis_env.out.tmp.$(date +%s)
 travis env list -r $TRAVIS_SLUG > $TRAVIS_ENV
 
 
-TRAVIS_EXPECTED_ENV_VALUES="REPO_NAME=$REPO_NAME MAP_VERSION GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS"
+TRAVIS_EXPECTED_ENV_VALUES="MAP=$MAP MAP_VERSION GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS"
 
 for envVariable in $TRAVIS_EXPECTED_ENV_VALUES; do
   ENV_FOUND_COUNT=$(grep -c "$envVariable" $TRAVIS_ENV)
@@ -221,9 +222,9 @@ rm $TRAVIS_ENV
 
 
 if [ $FAIL == 1 ]; then
-  echo "$REPO_NAME result: FAILED" 
+  echo "$MAP result: FAILED" 
   exit -1
 fi
 
-echo "$REPO_NAME result: PASSED."
+echo "$MAP result: PASSED."
 exit 0
