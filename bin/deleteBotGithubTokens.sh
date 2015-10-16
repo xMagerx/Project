@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 export BOT_NAME=$1
 export BOT_PASS_FILE=$2
 
@@ -10,12 +12,10 @@ if [ ! -f "$BOT_PASS_FILE" ]; then
   exit 1
 fi
 
-githubAuthUrl="https://api.github.com/authorizations?per_page=1000?page=1"
 
-botAuth="$BOT_NAME:$(cat $BOT_PASS_FILE)"
+for i in $(curl -s -u $BOT_NAME:$(cat $BOT_PASS_FILE) https://api.github.com/authorizations 2>&1 | grep "\"id\"" | sed 's/.* //' | sed 's/,$//'); do
+  curl -X DELETE -u $BOT_NAME:$(cat $BOT_PASS_FILE) https://api.github.com/authorizations/$i;
+  echo "Deleted token id: $i"
+  sleep 1
+done
 
-
-for i in $(curl -s -u "$botAuth" "$githubAuthUrl" 2>&1 | grep \"id\" | sed 's|.*: ||g' | sed 's|,$||'); do
-  echo "delete $i"
-  curl -X DELETE -u "$botAuth" -silent https://api.github.com/authorizations/$i
-done;
