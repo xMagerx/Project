@@ -12,15 +12,9 @@ if [[ -z "$MAP_FOLDER" ]] || [[ ! -f "$TOKEN_FILE" ]]; then
 fi
 
 if [ -e "$MAP_FOLDER" ]; then
-#  (
-#   cd $MAP_FOLDER
-#   travis login --github-token $(cat "$TOKEN_FILE")
-#   travis env clear
-#  )
   rm -rf "$MAP_FOLDER"
 fi
 
 curl -X DELETE -H "Authorization: token $(cat $TOKEN_FILE)" https://api.github.com/repos/triplea-maps/$MAP_FOLDER
 
-travis sync
-sleep 1
+echo 'done, run travis sync when everything is all done'
