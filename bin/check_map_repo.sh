@@ -15,7 +15,6 @@ FAIL=0
 
 
 function usage() {
-  
   echo "usage: $(basename $0) -t <token_file> -m <map_repository>"
   echo "   token: a file containing one line, a github personal access token."
   echo "   map_repository: relative path to a local map repository clone."
@@ -112,7 +111,7 @@ function checkExpectedFilesAndFoldersPresent() {
   local mapFolder=$1
 
   for file in $GIT_FILES $MAP_FILES $MAP_FOLDERS; do
-    checkFileExists $mapFolder/$file
+    checkFileExists "$mapFolder/$file"
   done
 }
 
@@ -123,19 +122,20 @@ function checkMapXml() {
     fail "Did not find folder $mapFolder/map/games"
   else
     ## check for at least one map xml
-    XML_COUNT=$(find "$mapFolder/map/games" -name "*.xml" | grep -c "^")
-    if [ $XML_COUNT == 0 ]; then
+    local XML_COUNT=$(find "$mapFolder/map/games" -name "*.xml" | grep -c "^")
+    if [ "$XML_COUNT" == 0 ]; then
       fail "Found $XML_COUNT map xmls, expected at least one in $mapFolder/map/games."
     fi
     
+     
   fi
 }
 
 function checkFolderContents() {
   local mapFolder=$1
   ### Check that local folder contains no zip folders
-  ZIP_COUNT=$(find "$mapFolder" -name "*.zip" | wc -l)
-  if [ $ZIP_COUNT -gt 0 ]; then
+  local ZIP_COUNT=$(find "$mapFolder" -name "*.zip" | wc -l)
+  if [ "$ZIP_COUNT" -gt 0 ]; then
     fail "Found ($ZIP_COUNT) zip files, expected zero."
   fi
 
@@ -146,8 +146,8 @@ function checkGitSetup() {
 
   ## Check remote origin repository has been set up
   if [ -d ".git" ]; then
-    REMOTE_ORIGIN_COUNT=$(git remote -v | grep -c "^origin.*git@github.com:${ORG_NAME}/$MAP.git")
-    if [ ! $REMOTE_ORIGIN_COUNT == 2 ]; then
+    local REMOTE_ORIGIN_COUNT=$(git remote -v | grep -c "^origin.*git@github.com:${ORG_NAME}/$MAP.git")
+    if [ ! "$REMOTE_ORIGIN_COUNT" == 2 ]; then
       fail "Did not find two remote origins with 'git remote -v', found: $REMOTE_ORIGIN_COUNT"
     fi
   fi
@@ -156,8 +156,8 @@ function checkGitSetup() {
 function checkRemoteSetup() {
   local mapFolder=$1
   ## Check github org has the repository
-  GITHUB_ORG_REPO_COUNT=$(curl "https://api.github.com/orgs/${ORG_NAME}/repos?${PAGING}" 2>&1 | grep -c "full_name.*$TRAVIS_SLUG\"") 
-  if [ $GITHUB_ORG_REPO_COUNT == 0 ]; then
+  local GITHUB_ORG_REPO_COUNT=$(curl "https://api.github.com/orgs/${ORG_NAME}/repos?${PAGING}" 2>&1 | grep -c "full_name.*$TRAVIS_SLUG\"") 
+  if [ "$GITHUB_ORG_REPO_COUNT" == 0 ]; then
     fail "GitHub - Repository does not exist with GitHub organization ${ORG_NAME}"
   fi
 }
@@ -167,7 +167,7 @@ function checkGitTeams() {
   
   ## Check admin team has been added to this repository
   local ADMIN_TEAM_ADDED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/$MAP_ADMIN_TEAM_ID/repos?${PAGING}" 2>&1 | grep -c "clone_url.*$MAP.git")
-  if [ $ADMIN_TEAM_ADDED == 0 ]; then
+  if [ "$ADMIN_TEAM_ADDED" == 0 ]; then
     fail "GitHub Teams - Map admin team not added"
   fi
 
@@ -198,7 +198,7 @@ function checkTravisValue() {
 function checkTravis() {
   local mapFolder=$1
 
-  local TRAVIS_YML_LENGTH=$(cat "$mapFolder/.travis.yml" | sed '/^ *$/d' | grep -c "^")
+  local TRAVIS_YML_LENGTH=$(sed '/^ *$/d' "$mapFolder/.travis.yml" | grep -c "^")
   if [ -f ".travis.yml" ]; then
     if [ "$TRAVIS_YML_LENGTH" -lt 20 ]; then
       fail "Travis yml length is too short to be correct."
