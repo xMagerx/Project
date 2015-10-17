@@ -85,20 +85,18 @@ function setGlobals() {
   MAP_ADMIN_TEAM_ID=1797261
   PAGING="?page=1&per_page=10000"
   
-  TRAVIS_SLUG="$ORG_NAME/$MAP"
-  TRAVIS_LOGIN="travis login -g $ACCESS_TOKEN"
-  if [ -f .travis.yml ]; then
-    "$TRAVIS_LOGIN"
-  fi
-
   GIT_FILES=".git .gitignore map .travis.yml build.gradle"
   MAP_FILES="map/place.txt map/polygons.txt map/polygons.txt map/baseTiles"
   MAP_FOLDERS="map/games"
+
+  TRAVIS_SLUG="$ORG_NAME/$MAP"
+  TRAVIS_LOGIN="travis login -g $ACCESS_TOKEN"
+  EXPECTED_TRAVIS_KEYS="language jdk script before_deploy deploy provider api_key secure file skip_cleanup prerelease"
 }
 
 
 function fail() {
-   FAIL_MSG=$1
+   local FAIL_MSG=$1
    echo "$MAP - FAILED - $FAIL_MSG"
    FAIL=1
 }
@@ -111,7 +109,7 @@ function fail() {
 ##
 
 function checkFileExists() {
-  FILE=$1
+  local FILE=$1
 
   if [ ! -e "$FILE" ]; then
     fail "File or folder missing: $FILE"
@@ -124,8 +122,6 @@ function checkExpectedFilesAndFoldersPresent() {
   for file in $GIT_FILES $MAP_FILES $MAP_FOLDERS; do
     checkFileExists $mapFolder/$file
   done
-
-  
 }
 
 
@@ -220,16 +216,16 @@ function checkGitTeams() {
 
 
 function checkTravisKey() {
-  KEY_TO_CHECK=$1
-  KEY_COUNT=$(grep -c "$KEY_TO_CHECK:" .travis.yml)
+  local KEY_TO_CHECK=$1
+  local KEY_COUNT=$(grep -c "$KEY_TO_CHECK:" .travis.yml)
   if [ "$KEY_COUNT" == 0 ]; then
      fail "Travis yml config - failed to find key $KEY_TO_CHECK"
   fi 
 }
 
 function checkTravisValue() {
-  VALUE_TO_CHECK="$1"
-  VALUE_COUNT=$(grep -c "$VALUE_TO_CHECK" .travis.yml)
+  local VALUE_TO_CHECK="$1"
+  local VALUE_COUNT=$(grep -c "$VALUE_TO_CHECK" .travis.yml)
   if [ "$VALUE_COUNT" == 0 ]; then
      fail "Travis yml config - failed to find exact value: $VALUE_TO_CHECK"
   fi
@@ -239,12 +235,11 @@ function checkTravisValue() {
 function checkTravis() {
   local mapFolder=$1
 
-  TRAVIS_YML_LENGTH=$(cat "$mapFolder/.travis.yml" | sed '/^ *$/d' | grep -c "^")
+  local TRAVIS_YML_LENGTH=$(cat "$mapFolder/.travis.yml" | sed '/^ *$/d' | grep -c "^")
   if [ -f ".travis.yml" ]; then
     if [ "$TRAVIS_YML_LENGTH" -lt 20 ]; then
       fail "Travis yml length is too short to be correct."
     else
-      EXPECTED_TRAVIS_KEYS="language jdk script before_deploy deploy provider api_key secure file skip_cleanup prerelease"
   
       for key in $EXPECTED_TRAVIS_KEYS; do
         checkTravisKey "$key"
@@ -290,6 +285,9 @@ function checkTravisEnvironmentVariables() {
 
 checkLocalState
 setGlobals
+if [ -f .travis.yml ]; then
+  "$TRAVIS_LOGIN"
+fi
 echo "-- Checking $MAP"
 checkExpectedFilesAndFoldersPresent "$MAP"
 checkMapXml "$MAP"
