@@ -2,11 +2,16 @@
 FAIL=0
 
 # todo
-### Check there are no spaces in any of the filenames
+
 ### Check map images are all present
 #
-### Check Travis map version matches what is listed in the game XML
-### or alternatively check that the map version is not specificed in the game xml and is set as a variable.
+## - Check xml has normalized map name.
+## - Download the latest release and verify it is there
+##   - Verify the images are present and are not corrupt
+##   - Verify the file counts of what is in the map folder matches the zip
+##   - Verify image file size? (not too small, not too big)
+##   - Check total zip file size? (not larger than 100MB?)
+## - Map version checks?
 
 
 function usage() {
@@ -17,6 +22,10 @@ function usage() {
   exit 1
 }
 
+
+##
+## Handle Args
+## 
 
 if [ $# == 0 ]; then
   usage
@@ -83,9 +92,11 @@ function fail() {
 
 echo "-- Checking $MAP"
 
+
 ##
-## Check all expected files and folders are present
+## Functions for checking all expected file and folders are present
 ##
+
 function checkFileExists() {
   FILE=$1
 
@@ -93,65 +104,114 @@ function checkFileExists() {
     fail "File or folder missing: $FILE"
   fi
 }
-
+  
 GIT_FILES=".git .gitignore map .travis.yml build.gradle"
 MAP_FILES="map/place.txt map/polygons.txt map/polygons.txt map/baseTiles"
+MAP_FOLDERS="map/games"
 
-for i in $GIT_FILES $MAP_FILES; do
-  checkFileExists $MAP/$i
-done
+function checkExpectedFilesAndFoldersPresent() {
+  local mapFolder=$1
+
+  for file in $GIT_FILES $MAP_FILES $MAP_FOLDERS; do
+    checkFileExists $mapFolder/$file
+  done
+
+  
+}
+checkExpectedFilesAndFoldersPresent $MAP
 
 ##
-## check there is at least one game xml file
+## Map XML checks
 ##
-if [ -d map/games ]; then
-  XML_COUNT=$(find map/games -name "*.xml" | grep -c "^")
-  if [ $XML_COUNT == 0 ]; then
-    fail "Found $XML_COUNT map xmls, expected at least one in map/games."
+
+function checkMapXml() {
+  local mapFolder=$1
+  
+  if [ ! -d "$mapFolder/map/games" ]; then
+    fail "Did not find folder $mapFolder/map/games"
+  else
+    ## check for at least one map xml
+    XML_COUNT=$(find "$mapFolder/map/games" -name "*.xml" | grep -c "^")
+    if [ $XML_COUNT == 0 ]; then
+      fail "Found $XML_COUNT map xmls, expected at least one in $mapFolder/map/games."
+    fi
+    
   fi
-fi
+}
+
+checkMapXml $MAP
 
 
-### Check that local folder contains no zip folders
+##
+## CheckFolderContents
+##
 
-ZIP_COUNT=$(find . -name "*.zip" | wc -l)
-if [ $ZIP_COUNT -gt 0 ]; then
-  fail "Found ($ZIP_COUNT) zip files, expected zero."
-fi
-
-### Check remote origin repository has been set up
-
-if [ -d ".git" ]; then
-  REMOTE_ORIGIN_COUNT=$(git remote -v | grep -c "^origin.*git@github.com:${ORG_NAME}/$MAP.git")
-  if [ ! $REMOTE_ORIGIN_COUNT == 2 ]; then
-    fail "Did not find two remote origins with 'git remote -v', found: $REMOTE_ORIGIN_COUNT"
+function checkFolderContents() {
+  local mapFolder=$1
+  ### Check that local folder contains no zip folders
+  ZIP_COUNT=$(find "$mapFolder" -name "*.zip" | wc -l)
+  if [ $ZIP_COUNT -gt 0 ]; then
+    fail "Found ($ZIP_COUNT) zip files, expected zero."
   fi
-fi
+
+}
+
+checkFolderContents "$MAP"
 
 
-### Check github org has the repository
-GITHUB_ORG_REPO_COUNT=$(curl "https://api.github.com/orgs/${ORG_NAME}/repos?${PAGING}" 2>&1 | grep -c "full_name.*$TRAVIS_SLUG\"") 
-if [ $GITHUB_ORG_REPO_COUNT == 0 ]; then
-   fail "GitHub - Repository does not exist with GitHub organization ${ORG_NAME}"
-fi
+##
+## Check local git setup
+## 
+
+function checkGitSetup() {
+  local mapFolder=$1
+
+  ## Check remote origin repository has been set up
+  if [ -d ".git" ]; then
+    REMOTE_ORIGIN_COUNT=$(git remote -v | grep -c "^origin.*git@github.com:${ORG_NAME}/$MAP.git")
+    if [ ! $REMOTE_ORIGIN_COUNT == 2 ]; then
+      fail "Did not find two remote origins with 'git remote -v', found: $REMOTE_ORIGIN_COUNT"
+    fi
+  fi
+}
+checkGitSetup "$MAP"
+
+##
+## Check remote git setup
+## 
+
+function checkRemoteSetup() {
+  local mapFolder=$1
+  ## Check github org has the repository
+  GITHUB_ORG_REPO_COUNT=$(curl "https://api.github.com/orgs/${ORG_NAME}/repos?${PAGING}" 2>&1 | grep -c "full_name.*$TRAVIS_SLUG\"") 
+  if [ $GITHUB_ORG_REPO_COUNT == 0 ]; then
+    fail "GitHub - Repository does not exist with GitHub organization ${ORG_NAME}"
+  fi
+}
+checkRemoteSetup "$MAP"
 
 
-### Check admin team has been added to this repository
+##
+## Check git teams
+## 
 
-ADMIN_TEAM_ADDED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/$MAP_ADMIN_TEAM_ID/repos?${PAGING}" 2>&1 | grep -c "clone_url.*$MAP.git")
+function checkGitTeams() {
+  local mapFolder=$1
+  
+  ## Check admin team has been added to this repository
+  ADMIN_TEAM_ADDED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/$MAP_ADMIN_TEAM_ID/repos?${PAGING}" 2>&1 | grep -c "clone_url.*$MAP.git")
+  if [ $ADMIN_TEAM_ADDED == 0 ]; then
+    fail "GitHub Teams - Map admin team not added"
+  fi
 
-if [ $ADMIN_TEAM_ADDED == 0 ]; then
-  fail "GitHub Teams - Map admin team not added"
-fi
+  ## Check admin team has write access to this repository
+  ADMIN_TEAM_PUSH_GRANTED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/1797261/repos?${PAGING}" 2>&1 | grep -A25 "clone_url.*$MAP.git" | grep -c "push.*true")
 
-### Check admin team has write access to this repository
-
-ADMIN_TEAM_PUSH_GRANTED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/1797261/repos?${PAGING}" 2>&1 | grep -A25 "clone_url.*$MAP.git" | grep -c "push.*true")
-
-if [ $ADMIN_TEAM_PUSH_GRANTED == 0 ]; then
-  fail "GitHub Teams - Map admin team write access not granted"
-fi
-
+  if [ $ADMIN_TEAM_PUSH_GRANTED == 0 ]; then
+    fail "GitHub Teams - Map admin team write access not granted"
+  fi
+}
+checkGitTeams "$MAP"
 
 ### Check .travis.yml minimum length
 ### Check .travis.yml file for expected keys
