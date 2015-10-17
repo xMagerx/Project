@@ -38,38 +38,47 @@ do
     -t|--token)
       TOKEN_FILE="$2"
       shift 2
-      if [ ! -f "$TOKEN_FILE" ]; then
-        echo "Error, not a file: $TOKEN_FILE"
-        usage
-        exit 1
-      fi
-
-      ACCESS_TOKEN=$(cat $TOKEN_FILE)
-      if [ -z "$ACCESS_TOKEN" ]; then
-        echo "Error, no token found in: $TOKEN_FILE"
-      exit 1 
-      fi
-     
-      curl --silent -u "${ACCESS_TOKEN}:x-oauth-basic" https://api.github.com/user | grep -q login || \
-        { echo "Failed to authenticate against GitHub with the admin token provided."; exit 1; }
       ;;
     -m|--map)
-      MAP="$2"
+      MAP=$(echo "$2" | sed 's|^\./||')
       shift 2
-      if [ ! -d "$MAP" ]; then
-        echo "Error, not a folder: $MAP"
-        exit 1
-      fi
-      MAP=$(echo $MAP | sed 's|^\./||')
       ;;
     *)
-      echo "${bold}Unrecognized argument: $key${normal}"
+      echo "Unrecognized argument: $key"
       usage
       ;;
   esac
 done
 
 
+function checkLocalState() {
+  if [ -z "$TOKEN_FILE" ]; then
+    echo "Error, token parameter missing"
+    usage
+    exit 1
+  fi
+
+  if [ ! -f "$TOKEN_FILE" ]; then
+    echo "Error, token file does not exist: $TOKEN_FILE"
+    usage
+    exit 1
+  fi
+  
+  ACCESS_TOKEN=$(cat $TOKEN_FILE)
+  if [ -z "$ACCESS_TOKEN" ]; then
+    echo "Error, no token found in file: $TOKEN_FILE"
+    exit 1 
+  fi
+  
+  curl --silent -u "${ACCESS_TOKEN}:x-oauth-basic" https://api.github.com/user | grep -q login || \
+      { echo "Failed to authenticate against GitHub with the admin token provided."; exit 1; }
+  if [[ -z "$MAP" ]] || [[ ! -d "$MAP" ]]; then
+    echo "Error, not a map folder: $MAP"
+    exit 1
+  fi
+}
+
+checkLocalState
 
 
 GITHUB_AUTH="Authorization: token $ACCESS_TOKEN"
@@ -213,8 +222,11 @@ function checkGitTeams() {
 }
 checkGitTeams "$MAP"
 
-### Check .travis.yml minimum length
-### Check .travis.yml file for expected keys
+
+##
+## Check Travis
+##
+
 
 
 function checkTravisKey() {
@@ -233,51 +245,57 @@ function checkTravisValue() {
   fi
 }
 
-TRAVIS_YML_LENGTH=$(cat .travis.yml | sed '/^ *$/d' | grep -c "^")
-if [ -f ".travis.yml" ]; then
-  if [ $TRAVIS_YML_LENGTH -lt 20 ]; then
-    fail "Travis yml length is too short to be correct."
-  else
-    EXPECTED_TRAVIS_KEYS="language jdk script before_deploy deploy provider api_key secure file skip_cleanup prerelease"
 
-    for key in $EXPECTED_TRAVIS_KEYS; do
-      checkTravisKey $key   
-    done 
+function checkTravis() {
+  local mapFolder=$1
 
-    checkTravisValue "tags: false"
-    checkTravisValue "all_branches: true"
-    checkTravisValue "gradle zipMap"
-
-    ### check travis slug name is correct in the .git/config file
-    SLUG_COUNT=$(grep -c "slug = $TRAVIS_SLUG" .git/config)
-    if [ $SLUG_COUNT == 0 ]; then
-     fail "Travis Config - Did not find correct slug name in .git/config"
-    fi
+  TRAVIS_YML_LENGTH=$(cat $mapFolder/.travis.yml | sed '/^ *$/d' | grep -c "^")
+  if [ -f ".travis.yml" ]; then
+    if [ $TRAVIS_YML_LENGTH -lt 20 ]; then
+      fail "Travis yml length is too short to be correct."
+    else
+      EXPECTED_TRAVIS_KEYS="language jdk script before_deploy deploy provider api_key secure file skip_cleanup prerelease"
   
-    ### Check travis builds for a successful build
-    PASSED=$(travis status -r $TRAVIS_SLUG  | grep -c "passed$")
-    if [ $PASSED == 0 ]; then
-     fail "Travis Build - Last travis build did not succeed"
+      for key in $EXPECTED_TRAVIS_KEYS; do
+        checkTravisKey $key   
+      done 
+  
+      checkTravisValue "tags: false"
+      checkTravisValue "all_branches: true"
+      checkTravisValue "gradle zipMap"
+  
+      ### check travis slug name is correct in the .git/config file
+      SLUG_COUNT=$(grep -c "slug = $TRAVIS_SLUG" .git/config)
+      if [ $SLUG_COUNT == 0 ]; then
+       fail "Travis Config - Did not find correct slug name in .git/config"
+      fi
+    
+      ### Check travis builds for a successful build
+      PASSED=$(travis status -r $TRAVIS_SLUG  | grep -c "passed$")
+      if [ $PASSED == 0 ]; then
+       fail "Travis Build - Last travis build did not succeed"
+      fi
     fi
   fi
-fi
-  
+}
+checkTravis "$MAP"
+ 
 
 ### Check Travis Variables Are Set Correctly
-TRAVIS_ENV=/tmp/travis_env.out.tmp.$(date +%s)
-travis env list -r $TRAVIS_SLUG > $TRAVIS_ENV
 
+TRAVIS_EXPECTED_ENV_VALUES="REPO_NAME=$MAP MAP_VERSION GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS"
 
-TRAVIS_EXPECTED_ENV_VALUES="MAP=$MAP MAP_VERSION GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS"
-
-for envVariable in $TRAVIS_EXPECTED_ENV_VALUES; do
-  ENV_FOUND_COUNT=$(grep -c "$envVariable" $TRAVIS_ENV)
-  if [ $ENV_FOUND_COUNT == 0 ]; then
-   fail "Missing Travis Environment Variable: $envVariable"
-  fi
-done
-
-rm $TRAVIS_ENV
+function checkTravisEnvironmentVariables() {
+  local TRAVIS_ENV=$(travis env list -r $TRAVIS_SLUG)
+  
+  for envVariable in $TRAVIS_EXPECTED_ENV_VALUES; do
+    local ENV_FOUND_COUNT=$(echo $TRAVIS_ENV | grep -c "$envVariable")
+    if [ $ENV_FOUND_COUNT == 0 ]; then
+      fail "Missing Travis Environment Variable: $envVariable"
+    fi
+  done
+}
+checkTravisEnvironmentVariables
 
 
 
