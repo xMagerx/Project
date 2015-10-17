@@ -34,7 +34,7 @@ fi
 while [[ $# -gt 1 ]]
 do
   key="$1"
-  case $key in
+  case "$key" in
     -t|--token)
       TOKEN_FILE="$2"
       shift 2
@@ -64,7 +64,7 @@ function checkLocalState() {
     exit 1
   fi
   
-  ACCESS_TOKEN=$(cat $TOKEN_FILE)
+  ACCESS_TOKEN=$(cat "$TOKEN_FILE")
   if [ -z "$ACCESS_TOKEN" ]; then
     echo "Error, no token found in file: $TOKEN_FILE"
     exit 1 
@@ -88,7 +88,7 @@ function setGlobals() {
   TRAVIS_SLUG="$ORG_NAME/$MAP"
   TRAVIS_LOGIN="travis login -g $ACCESS_TOKEN"
   if [ -f .travis.yml ]; then
-    $TRAVIS_LOGIN
+    "$TRAVIS_LOGIN"
   fi
 
   GIT_FILES=".git .gitignore map .travis.yml build.gradle"
@@ -200,15 +200,15 @@ function checkGitTeams() {
   local mapFolder=$1
   
   ## Check admin team has been added to this repository
-  ADMIN_TEAM_ADDED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/$MAP_ADMIN_TEAM_ID/repos?${PAGING}" 2>&1 | grep -c "clone_url.*$MAP.git")
+  local ADMIN_TEAM_ADDED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/$MAP_ADMIN_TEAM_ID/repos?${PAGING}" 2>&1 | grep -c "clone_url.*$MAP.git")
   if [ $ADMIN_TEAM_ADDED == 0 ]; then
     fail "GitHub Teams - Map admin team not added"
   fi
 
   ## Check admin team has write access to this repository
-  ADMIN_TEAM_PUSH_GRANTED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/1797261/repos?${PAGING}" 2>&1 | grep -A25 "clone_url.*$MAP.git" | grep -c "push.*true")
+  local ADMIN_TEAM_PUSH_GRANTED=$(curl -H "$GITHUB_AUTH" "https://api.github.com/teams/1797261/repos?${PAGING}" 2>&1 | grep -A25 "clone_url.*$MAP.git" | grep -c "push.*true")
 
-  if [ $ADMIN_TEAM_PUSH_GRANTED == 0 ]; then
+  if [ "$ADMIN_TEAM_PUSH_GRANTED" == 0 ]; then
     fail "GitHub Teams - Map admin team write access not granted"
   fi
 }
@@ -222,7 +222,7 @@ function checkGitTeams() {
 function checkTravisKey() {
   KEY_TO_CHECK=$1
   KEY_COUNT=$(grep -c "$KEY_TO_CHECK:" .travis.yml)
-  if [ $KEY_COUNT == 0 ]; then
+  if [ "$KEY_COUNT" == 0 ]; then
      fail "Travis yml config - failed to find key $KEY_TO_CHECK"
   fi 
 }
@@ -230,7 +230,7 @@ function checkTravisKey() {
 function checkTravisValue() {
   VALUE_TO_CHECK="$1"
   VALUE_COUNT=$(grep -c "$VALUE_TO_CHECK" .travis.yml)
-  if [ $VALUE_COUNT == 0 ]; then
+  if [ "$VALUE_COUNT" == 0 ]; then
      fail "Travis yml config - failed to find exact value: $VALUE_TO_CHECK"
   fi
 }
@@ -239,15 +239,15 @@ function checkTravisValue() {
 function checkTravis() {
   local mapFolder=$1
 
-  TRAVIS_YML_LENGTH=$(cat $mapFolder/.travis.yml | sed '/^ *$/d' | grep -c "^")
+  TRAVIS_YML_LENGTH=$(cat "$mapFolder/.travis.yml" | sed '/^ *$/d' | grep -c "^")
   if [ -f ".travis.yml" ]; then
-    if [ $TRAVIS_YML_LENGTH -lt 20 ]; then
+    if [ "$TRAVIS_YML_LENGTH" -lt 20 ]; then
       fail "Travis yml length is too short to be correct."
     else
       EXPECTED_TRAVIS_KEYS="language jdk script before_deploy deploy provider api_key secure file skip_cleanup prerelease"
   
       for key in $EXPECTED_TRAVIS_KEYS; do
-        checkTravisKey $key   
+        checkTravisKey "$key"
       done 
   
       checkTravisValue "tags: false"
@@ -256,13 +256,13 @@ function checkTravis() {
   
       ### check travis slug name is correct in the .git/config file
       SLUG_COUNT=$(grep -c "slug = $TRAVIS_SLUG" .git/config)
-      if [ $SLUG_COUNT == 0 ]; then
+      if [ "$SLUG_COUNT" == 0 ]; then
        fail "Travis Config - Did not find correct slug name in .git/config"
       fi
     
       ### Check travis builds for a successful build
-      PASSED=$(travis status -r $TRAVIS_SLUG  | grep -c "passed$")
-      if [ $PASSED == 0 ]; then
+      PASSED=$(travis status -r "$TRAVIS_SLUG"  | grep -c "passed$")
+      if [ "$PASSED" == 0 ]; then
        fail "Travis Build - Last travis build did not succeed"
       fi
     fi
@@ -274,11 +274,11 @@ function checkTravis() {
 TRAVIS_EXPECTED_ENV_VALUES="REPO_NAME=$MAP MAP_VERSION GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS"
 
 function checkTravisEnvironmentVariables() {
-  local TRAVIS_ENV=$(travis env list -r $TRAVIS_SLUG)
+  local TRAVIS_ENV=$(travis env list -r "$TRAVIS_SLUG")
   
   for envVariable in $TRAVIS_EXPECTED_ENV_VALUES; do
-    local ENV_FOUND_COUNT=$(echo $TRAVIS_ENV | grep -c "$envVariable")
-    if [ $ENV_FOUND_COUNT == 0 ]; then
+    local ENV_FOUND_COUNT=$(echo "$TRAVIS_ENV" | grep -c "$envVariable")
+    if [ "$ENV_FOUND_COUNT" == 0 ]; then
       fail "Missing Travis Environment Variable: $envVariable"
     fi
   done
@@ -291,8 +291,8 @@ function checkTravisEnvironmentVariables() {
 checkLocalState
 setGlobals
 echo "-- Checking $MAP"
-checkExpectedFilesAndFoldersPresent $MAP
-checkMapXml $MAP
+checkExpectedFilesAndFoldersPresent "$MAP"
+checkMapXml "$MAP"
 checkFolderContents "$MAP"
 checkGitSetup "$MAP"
 checkRemoteSetup "$MAP"
@@ -300,7 +300,7 @@ checkGitTeams "$MAP"
 checkTravis "$MAP" 
 checkTravisEnvironmentVariables
 
-if [ $FAIL == 1 ]; then
+if [ "$FAIL" == 1 ]; then
   echo "$MAP result: FAILED" 
   exit -1
 fi
