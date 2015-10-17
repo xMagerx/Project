@@ -78,19 +78,23 @@ function checkLocalState() {
   fi
 }
 
-checkLocalState
 
+function setGlobals() {
+  GITHUB_AUTH="Authorization: token $ACCESS_TOKEN"
+  ORG_NAME="triplea-maps"
+  MAP_ADMIN_TEAM_ID=1797261
+  PAGING="?page=1&per_page=10000"
+  
+  TRAVIS_SLUG="$ORG_NAME/$MAP"
+  TRAVIS_LOGIN="travis login -g $ACCESS_TOKEN"
+  if [ -f .travis.yml ]; then
+    $TRAVIS_LOGIN
+  fi
 
-GITHUB_AUTH="Authorization: token $ACCESS_TOKEN"
-ORG_NAME="triplea-maps"
-MAP_ADMIN_TEAM_ID=1797261
-PAGING="?page=1&per_page=10000"
-
-TRAVIS_SLUG="$ORG_NAME/$MAP"
-TRAVIS_LOGIN="travis login -g $ACCESS_TOKEN"
-if [ -f .travis.yml ]; then
-  $TRAVIS_LOGIN
-fi
+  GIT_FILES=".git .gitignore map .travis.yml build.gradle"
+  MAP_FILES="map/place.txt map/polygons.txt map/polygons.txt map/baseTiles"
+  MAP_FOLDERS="map/games"
+}
 
 
 function fail() {
@@ -99,7 +103,7 @@ function fail() {
    FAIL=1
 }
 
-echo "-- Checking $MAP"
+
 
 
 ##
@@ -113,10 +117,6 @@ function checkFileExists() {
     fail "File or folder missing: $FILE"
   fi
 }
-  
-GIT_FILES=".git .gitignore map .travis.yml build.gradle"
-MAP_FILES="map/place.txt map/polygons.txt map/polygons.txt map/baseTiles"
-MAP_FOLDERS="map/games"
 
 function checkExpectedFilesAndFoldersPresent() {
   local mapFolder=$1
@@ -127,7 +127,7 @@ function checkExpectedFilesAndFoldersPresent() {
 
   
 }
-checkExpectedFilesAndFoldersPresent $MAP
+
 
 ##
 ## Map XML checks
@@ -148,8 +148,6 @@ function checkMapXml() {
   fi
 }
 
-checkMapXml $MAP
-
 
 ##
 ## CheckFolderContents
@@ -164,9 +162,6 @@ function checkFolderContents() {
   fi
 
 }
-
-checkFolderContents "$MAP"
-
 
 ##
 ## Check local git setup
@@ -183,7 +178,6 @@ function checkGitSetup() {
     fi
   fi
 }
-checkGitSetup "$MAP"
 
 ##
 ## Check remote git setup
@@ -197,8 +191,6 @@ function checkRemoteSetup() {
     fail "GitHub - Repository does not exist with GitHub organization ${ORG_NAME}"
   fi
 }
-checkRemoteSetup "$MAP"
-
 
 ##
 ## Check git teams
@@ -220,8 +212,6 @@ function checkGitTeams() {
     fail "GitHub Teams - Map admin team write access not granted"
   fi
 }
-checkGitTeams "$MAP"
-
 
 ##
 ## Check Travis
@@ -278,8 +268,6 @@ function checkTravis() {
     fi
   fi
 }
-checkTravis "$MAP"
- 
 
 ### Check Travis Variables Are Set Correctly
 
@@ -295,9 +283,22 @@ function checkTravisEnvironmentVariables() {
     fi
   done
 }
+
+
+
+###
+
+checkLocalState
+setGlobals
+echo "-- Checking $MAP"
+checkExpectedFilesAndFoldersPresent $MAP
+checkMapXml $MAP
+checkFolderContents "$MAP"
+checkGitSetup "$MAP"
+checkRemoteSetup "$MAP"
+checkGitTeams "$MAP"
+checkTravis "$MAP" 
 checkTravisEnvironmentVariables
-
-
 
 if [ $FAIL == 1 ]; then
   echo "$MAP result: FAILED" 
