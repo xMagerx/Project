@@ -92,21 +92,13 @@ function setGlobals() {
   TRAVIS_SLUG="$ORG_NAME/$MAP"
   TRAVIS_LOGIN="travis login -g $ACCESS_TOKEN"
   EXPECTED_TRAVIS_KEYS="language jdk script before_deploy deploy provider api_key secure file skip_cleanup prerelease"
+  TRAVIS_EXPECTED_ENV_VALUES="REPO_NAME=$MAP MAP_VERSION GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS"
 }
-
-
 function fail() {
    local FAIL_MSG=$1
    echo "$MAP - FAILED - $FAIL_MSG"
    FAIL=1
 }
-
-
-
-
-##
-## Functions for checking all expected file and folders are present
-##
 
 function checkFileExists() {
   local FILE=$1
@@ -124,11 +116,6 @@ function checkExpectedFilesAndFoldersPresent() {
   done
 }
 
-
-##
-## Map XML checks
-##
-
 function checkMapXml() {
   local mapFolder=$1
   
@@ -144,11 +131,6 @@ function checkMapXml() {
   fi
 }
 
-
-##
-## CheckFolderContents
-##
-
 function checkFolderContents() {
   local mapFolder=$1
   ### Check that local folder contains no zip folders
@@ -158,10 +140,6 @@ function checkFolderContents() {
   fi
 
 }
-
-##
-## Check local git setup
-## 
 
 function checkGitSetup() {
   local mapFolder=$1
@@ -175,10 +153,6 @@ function checkGitSetup() {
   fi
 }
 
-##
-## Check remote git setup
-## 
-
 function checkRemoteSetup() {
   local mapFolder=$1
   ## Check github org has the repository
@@ -187,10 +161,6 @@ function checkRemoteSetup() {
     fail "GitHub - Repository does not exist with GitHub organization ${ORG_NAME}"
   fi
 }
-
-##
-## Check git teams
-## 
 
 function checkGitTeams() {
   local mapFolder=$1
@@ -209,12 +179,6 @@ function checkGitTeams() {
   fi
 }
 
-##
-## Check Travis
-##
-
-
-
 function checkTravisKey() {
   local KEY_TO_CHECK=$1
   local KEY_COUNT=$(grep -c "$KEY_TO_CHECK:" .travis.yml)
@@ -230,7 +194,6 @@ function checkTravisValue() {
      fail "Travis yml config - failed to find exact value: $VALUE_TO_CHECK"
   fi
 }
-
 
 function checkTravis() {
   local mapFolder=$1
@@ -250,13 +213,13 @@ function checkTravis() {
       checkTravisValue "gradle zipMap"
   
       ### check travis slug name is correct in the .git/config file
-      SLUG_COUNT=$(grep -c "slug = $TRAVIS_SLUG" .git/config)
+      local SLUG_COUNT=$(grep -c "slug = $TRAVIS_SLUG" .git/config)
       if [ "$SLUG_COUNT" == 0 ]; then
        fail "Travis Config - Did not find correct slug name in .git/config"
       fi
     
       ### Check travis builds for a successful build
-      PASSED=$(travis status -r "$TRAVIS_SLUG"  | grep -c "passed$")
+      local PASSED=$(travis status -r "$TRAVIS_SLUG"  | grep -c "passed$")
       if [ "$PASSED" == 0 ]; then
        fail "Travis Build - Last travis build did not succeed"
       fi
@@ -266,7 +229,6 @@ function checkTravis() {
 
 ### Check Travis Variables Are Set Correctly
 
-TRAVIS_EXPECTED_ENV_VALUES="REPO_NAME=$MAP MAP_VERSION GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS"
 
 function checkTravisEnvironmentVariables() {
   local TRAVIS_ENV=$(travis env list -r "$TRAVIS_SLUG")
