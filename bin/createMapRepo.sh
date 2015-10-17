@@ -1,5 +1,12 @@
 #!/bin/bash
 
+
+## todo 
+        -- accept bot token, use it to create repo and do everything
+##        -- use the admin token just for the team management stuff
+##      -- Read the bot, admin tokens and bot password from a property file rather than as args
+
+
 clear 
 
 export bold=$(tput bold)
