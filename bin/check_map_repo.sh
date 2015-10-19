@@ -15,7 +15,7 @@ FAIL=0
 
 
 function usage() {
-  echo "usage: $(basename $0) -t <token_file> -m <map_repository>"
+  echo "usage: $(basename "$0") -t <token_file> -m <map_repository>"
   echo "   token: a file containing one line, a github personal access token."
   echo "   map_repository: relative path to a local map repository clone."
   exit 1
@@ -39,7 +39,7 @@ do
       shift 2
       ;;
     -m|--map)
-      MAP=$(echo "$2" | sed 's|^\./||')
+      MAP=${2//^\./}
       shift 2
       ;;
     *)
@@ -126,8 +126,15 @@ function checkMapXml() {
     if [ "$XML_COUNT" == 0 ]; then
       fail "Found $XML_COUNT map xmls, expected at least one in $mapFolder/map/games."
     fi
-    
-     
+
+    while read xml; do
+      grep "property" "$xml" | grep "\"mapName\"" | grep -q "\"$mapFolder\"" || \
+          {
+            fail "XML does not contain a 'mapName' property with value $mapFolder in $xml";
+            echo -n "       Instead found: ";
+            grep "property" "$xml" | grep "\"mapName\"" | sed 's|^ *||'
+          }
+    done < <(find "$mapFolder/map/games" -type f -name "*.xml")
   fi
 }
 
