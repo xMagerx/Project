@@ -1,18 +1,8 @@
 #!/bin/bash
 FAIL=0
 
-# todo
 
-### Check map images are all present
-#
-## - Check xml has normalized map name.
-## - Download the latest release and verify it is there
-##   - Verify the images are present and are not corrupt
-##   - Verify the file counts of what is in the map folder matches the zip
-##   - Verify image file size? (not too small, not too big)
-##   - Check total zip file size? (not larger than 100MB?)
-## - Map version checks?
-
+# TODO check map versioning
 
 function usage() {
   echo "usage: $(basename "$0") -t <token_file> -m <map_repository>"
@@ -21,10 +11,6 @@ function usage() {
   exit 1
 }
 
-
-##
-## Handle Args
-## 
 
 if [ $# == 0 ]; then
   usage
