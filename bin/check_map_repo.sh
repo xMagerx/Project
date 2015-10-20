@@ -6,7 +6,7 @@ FAIL=0
 #  - check map versioning
 #  - spaces in file names
 #  - xml files are formatted
-#  - look for the word 'old' in filenames
+#  - look for the word 'old' or 'not used' in filenames
 ## strip trailing slash if included off of the map folder parameter value
 
 function usage() {

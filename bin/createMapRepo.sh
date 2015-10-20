@@ -442,7 +442,7 @@ checkValidCredentials "$ADMIN_TOKEN" "$BOT_ACCOUNT" "$BOT_PASSWORD"
 echo
 printTitle "Do Travis Login"
 
-travis login -g "$ADMIN_TOKEN"
+travis login -g "$BOT_TOKEN"
 
 export -f printTitle
 export -f extractMapToNormalizedFolder
