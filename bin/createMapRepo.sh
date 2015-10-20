@@ -1,11 +1,18 @@
 #!/bin/bash
 
+## Scans the current folder for any zip files. For each one, normalized 
+## the name, creates a folder to host the github repo, extracts the zip 
+## into a map folder inside of teh hosting folder. The script then copies 
+## in and configures the Git support files, it also then remotely 
+## configures GitHub.com and Travis.org.
+
 ## todo -- accept bot token, use it to create repo and do everything
 ##      -- use the admin token just for the team management stuff
 ##      -- Read the bot, admin tokens and bot password from a property file rather than as args
 
 
 clear 
+
 
 export bold=$(tput bold)
 export normal=$(tput sgr0)
@@ -16,29 +23,15 @@ BLUE='\033[0;34m'
 ORG_NAME=triplea-maps
 BOT_ACCOUNT=tripleabuilderbot
 MAP_ADMIN_TEAM_NAME="MapAdmins"
-
-
 SCRIPT_NAME=$(basename "$0")
+
+
 function usage() {
-
-cat << EOF
-
-Usage: ./$SCRIPT_NAME -g {path_to_token_file} -p {path_to_bot_password_file}
-Example: ./$SCRIPT_NAME -g ~/.github/personal_access_token -p ~/.github/builderbot_password
-    path_to_token_file = relative or absolute path to a file 
-             containing a GitHub admins personal access token.
-    path_to_bot_password_file = relative or absolute path to a 
-             file that contains the tripleabuilderbot
-             GitHub account password.
-
-TripleA Map Zip file to GitHub repository migration Tool
-
-Scans the current folder for any zip files. For each one, normalized the name, creates a folder to host the github repo, extracts the zip into a map folder inside of teh hosting folder. The script then copies in and configures the Git support files, it also then remotely configures GitHub.com and Travis.org.
-
-Security Note: The bot account password will be displayed on standard 
-    out in plain text occasionally while this script is running.
-EOF
-exit 1
+  echo "Usage: ./$SCRIPT_NAME -a <admin_token_file> -b <bot_token_file> -p <bot_password_file>"
+  echo "  admin_token_file = file with one line, an an organization owner"
+  echo "  bot_token_file = personal access token of the github account"
+  echo "  bot_password_file =  file containing the password of the bot account"
+  exit 1
 }
 
 
