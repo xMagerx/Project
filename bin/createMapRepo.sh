@@ -1,9 +1,7 @@
 #!/bin/bash
 
-
-## todo 
-        -- accept bot token, use it to create repo and do everything
-##        -- use the admin token just for the team management stuff
+## todo -- accept bot token, use it to create repo and do everything
+##      -- use the admin token just for the team management stuff
 ##      -- Read the bot, admin tokens and bot password from a property file rather than as args
 
 
@@ -52,8 +50,12 @@ while [[ $# -gt 1 ]]
 do
   key="$1"
   case $key in
-    -g|--github-admin-token)
+    -a|--admin-token)
       ADMIN_TOKEN_FILE="$2"
+      shift 2
+      ;;
+    -b|--bot-token)
+      BOT_TOKEN_FILE="$2"
       shift 2
       ;;
     -p|--bot-account-password)
@@ -168,12 +170,6 @@ function extractMapToNormalizedFolder() {
 
 
 
-
-printZipFilesFound
-
-checkFileExists "$ADMIN_TOKEN_FILE"
-checkFileExists "$BOT_PASSWORD_FILE"
-
 function curFolder() {
 (
     local NEW_FOLDER=$(dirname "$0")
@@ -194,8 +190,6 @@ function deleteBotGitHubToken() {
 
 }
 
- ## todo
-githubAuthUrl="https://api.github.com/authorizations"
 
 function resetTravisBotToken() {
   local botPassword=$1
@@ -329,7 +323,7 @@ function addMapAdminTeam() {
 
 
   if [ "$MAP_ADMIN_TEAM_ADDED" == 0 ]; then
-    curl -X PUT -d "{\"permission\": \"push\"}" -H "${GITHUB_AUTH}" -H "Accept: application/vnd.github.ironman-preview+json" "https://api.github.com/teams/$MAP_ADMIN_ID/repos/${ORG_NAME}/$mapRepo"
+    curl -X PUT -d "{\"permission\": \"push\"}" -H "${ADMIN_GITHUB_AUTH}" -H "Accept: application/vnd.github.ironman-preview+json" "https://api.github.com/teams/$MAP_ADMIN_ID/repos/${ORG_NAME}/$mapRepo"
     echo "Map admin team added to repository"
   else
     echo "Skipping: map admin teams already added to the repository"
@@ -387,6 +381,12 @@ function commitAndPushMapFiles() {
 
 ###########
 
+ ## todo
+githubAuthUrl="https://api.github.com/authorizations"
+printZipFilesFound
+checkFileExists "$ADMIN_TOKEN_FILE"
+checkFileExists "$BOT_TOKEN_FILE"
+checkFileExists "$BOT_PASSWORD_FILE"
 
 verifyDependency "expect"
 verifyDependency "parallel"
@@ -404,8 +404,16 @@ checkFileExists "${FILES_FOLDER}/expect_scripts/travis_releases.expect"
 
 ADMIN_TOKEN=$(head -1 "$ADMIN_TOKEN_FILE")
 checkNotEmpty "$ADMIN_TOKEN"
-GITHUB_AUTH="Authorization: token $ADMIN_TOKEN"
+
+BOT_TOKEN=$(head -1 "$BOT_TOKEN_FILE")
+checkNotEmpty "$BOT_TOKEN"
+
+GITHUB_AUTH="Authorization: token $BOT_TOKEN"
+ADMIN_GITHUB_AUTH="Authorization: token $ADMIN_TOKEN"
+
 GITHUB_PAGE_ARGS="page=1&per_page=10000"
+
+
 
 BOT_PASSWORD=$(head -1 "$BOT_PASSWORD_FILE")
 checkNotEmpty "$BOT_PASSWORD"
