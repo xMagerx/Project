@@ -92,6 +92,8 @@ function setGlobals() {
   TRAVIS_LOGIN="travis login -g $ACCESS_TOKEN"
   EXPECTED_TRAVIS_KEYS="language jdk script before_deploy deploy provider api_key secure file skip_cleanup prerelease"
   TRAVIS_EXPECTED_ENV_VALUES="REPO_NAME=$MAP MAP_VERSION GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS"
+  ZIP_MIN_KB=300
+  ZIP_MAX_KB=100000
 }
 function fail() {
    local FAIL_MSG=$1
@@ -234,9 +236,6 @@ function checkTravis() {
   fi
 }
 
-### Check Travis Variables Are Set Correctly
-
-
 function checkTravisEnvironmentVariables() {
   local TRAVIS_ENV=$(travis env list -r "$TRAVIS_SLUG")
   
@@ -249,6 +248,77 @@ function checkTravisEnvironmentVariables() {
 }
 
 
+function compareFiles() {
+  local originalFile=$1
+  local releasedFile=$2
+
+  ## echo "Do a DU file size check right here compare $originalFile to $releasedFile"
+
+}
+
+function checkZippedFile() {
+  local mapFolder=$1
+  local zippedFile=$2
+  find "$mapFolder/map/$zippedFile" &> /dev/null || fail "Original file ($mapFolder/$zippedFile) does not exist, but was found in the zip release file: $zippedFile"
+    
+   if [[ -e "$tempFolder/$zippedFile" ]] && [[ -e "$mapFolder/map/$zippedFile" ]]; then
+     local zipSize=$(du -s "$tempFolder/$zippedFile" | sed 's|\s.*$||')
+     local srcSize=$(du -s "$mapFolder/map/$zippedFile" | sed 's|\s.*$||')
+
+     if [ "$zipSize" != "$srcSize" ]; then
+       fail "Differing file size between $zippedFile ($zipSize bytes), and: $mapFolder/map/$zippedFile ($srcSize bytes)"
+     fi
+   fi
+}
+export -f checkZippedFile
+
+function checkLatestRelease() {
+  local mapFolder=$1
+  
+  local tagCount=$(curl -s -H "$GITHUB_AUTH" "https://api.github.com/repos/triplea-maps/$mapFolder/releases" | grep -c \"tag_name\")
+  if [ "$tagCount" == 0 ]; then
+    fail "No tags found in: https://api.github.com/repos/triplea-maps/$mapFolder/releases"
+    return
+  fi 
+
+  local latestTag=$(curl -s -H "$GITHUB_AUTH" "https://api.github.com/repos/triplea-maps/$mapFolder/releases" | grep "\"tag_name\"" | sed 's/",$//' | sed 's/.*"//g' | head -1)
+  if [ -z "$latestTag" ]; then
+    fail "Did not get the latest tag from https://api.github.com/repos/triplea-maps/$mapFolder/releases, are there any tags?"
+    return
+  fi
+ 
+  local tempFolder=./tmp.check_map.$(date +%s)
+  local zipFile="${mapFolder}.zip"
+  
+  wget -q -P "$tempFolder" "https://github.com/${ORG_NAME}/${mapFolder}/releases/download/${latestTag}/${zipFile}"
+  if [ ! -f "${tempFolder}/${zipFile}" ]; then
+    fail "Failed to download release zip file: https://github.com/${ORG_NAME}/${mapFolder}/releases/download/${latestTag}/${zipFile}"
+    return
+  fi
+
+  local zipSize=$(du -s -BK "$tempFolder/$zipFile" | sed 's|K.*$||' ) 
+  if [ "$zipSize" -gt "$ZIP_MAX_KB" ]; then
+    fail "Zip size is: ${zipSize}K, over the limit of ${ZIP_MAX_KB}K"
+  fi
+  if [ "$zipSize" -lt "$ZIP_MIN_KB" ]; then
+    fail "Zip size is suspiciously small: ${zipSize}K, under warning limit of ${ZIP_MIN_KB}K"
+  fi
+
+
+  unzip -d "$tempFolder/" "$tempFolder/$zipFile" &> /dev/null
+     ## make sure we can find every file in the zipped archive somewhere back in the source, then compare file sizes
+  find "$tempFolder" -type f | sed "s|^$tempFolder/||" | grep -v "^${zipFile}$" | parallel checkZippedFile "$mapFolder" "{}"
+  rm -rf "$tempFolder/$zipFile"
+
+
+  local zipFileCount=$(find "$tempFolder" -type f | wc -l)
+  local srcFileCount=$(find "${mapFolder}/map" -type f | wc -l)
+  if [ "$zipFileCount" != "$srcFileCount" ]; then
+    fail "Zipped file contained $zipFileCount files but source contains $srcFileCount many files"
+  fi
+
+  rm -rf $tempFolder
+}
 
 ###
 
@@ -260,12 +330,15 @@ fi
 echo "-- Checking $MAP"
 checkExpectedFilesAndFoldersPresent "$MAP"
 checkMapXml "$MAP"
+  ## TODO: check and maker sure that nothing has spaces in it..
 checkFolderContents "$MAP"
 checkGitSetup "$MAP"
 checkRemoteSetup "$MAP"
 checkGitTeams "$MAP"
 checkTravis "$MAP" 
 checkTravisEnvironmentVariables
+
+checkLatestRelease "$MAP"
 
 if [ "$FAIL" == 1 ]; then
   echo "$MAP result: FAILED" 
