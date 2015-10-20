@@ -96,7 +96,7 @@ function printZipFilesFound() {
   echo
   printBlueTitle "<<Starting>>"
   printTitle "Found $(find . -maxdepth 1 -name '*zip' | wc -l) File(s)"
-  find . -maxdepth 1 -name '*zip' | sed 's|^./||'
+  find . -maxdepth 1 -name '*zip' | sed 's|^./||' | sort
   echo
 }
 
@@ -161,7 +161,35 @@ function extractMapToNormalizedFolder() {
   echo ""
 }
 
+function removeSpacesFromFileNames() {
+  local repoName=$1
+  printTitle "Removing spaces from filenames"
+  while read xmlName; do
+    local fixedName=$(echo $xmlName | tr ' ' '_')
+    mv "$xmlName" "$fixedName"
+  done < <(find "$repoName" -type f | grep " ")
+  echo
+}
 
+function formatXmlFiles() {
+  local repoName=$1
+  printTitle "Format XML files"
+  while read xmlName; do
+    xmllint --format "$xmlName" > "$xmlName.linted"
+    mv "$xmlName.linted" "$xmlName"
+  done < <(find "$repoName" -type f | grep ".xml$")
+  echo
+}
+
+function normalizeMapProperty() {
+  local repoName=$1
+  printTitle "Normalizing XML map property name"
+
+  while read xmlFile; do
+       xargs sed -i "s|name=\"mapName\" value=\".*\" editable|name=\"mapName\" value=\"$repoName\" editable|" "$xmlFile";
+  done < <(find "$repoName/map/games" -type f -name "*.xml")
+  echo
+}
 
 function curFolder() {
 (
@@ -192,7 +220,7 @@ function resetTravisBotToken() {
   local botAuth="$BOT_ACCOUNT:$botPassword"
 
   local newBotToken=$(curl --silent -d "{\"note\":\"$tokenName\", \"scopes\": [\"public_repo\"] }" \
-       -u "$botAuth" $githubAuthUrl 2>&1 | grep  "\"token\": " | sed 's|.*: "||' | sed 's|",$||');
+       -u "$botAuth" "$githubAuthUrl" 2>&1 | grep  "\"token\": " | sed 's|.*: "||' | sed 's|",$||');
   travis env set GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS "$newBotToken"
 }
 
@@ -221,13 +249,13 @@ function initTravis() {
 
    echo
    printTitle "Travis Init and Enable"
-   "$FILES_FOLDER/files/expect_scripts/travis_init.expect" "$ORG_NAME/$mapRepo"
+   "$FILES_FOLDER/expect_scripts/travis_init.expect" "$ORG_NAME/$mapRepo"
 
 
    echo
    printTitle "Travis: Setup Releases" 
    deleteBotGitHubToken "$botPassword" "automatic releases for $ORG_NAME/$mapRepo"
-   "$FILES_FOLDER/files/expect_scripts/travis_releases.expect" "$ORG_NAME/$mapRepo" "$BOT_ACCOUNT" "$botPassword" | tail -n +2
+   "$FILES_FOLDER/expect_scripts/travis_releases.expect" "$ORG_NAME/$mapRepo" "$BOT_ACCOUNT" "$botPassword" | tail -n +2
 
    echo
    printTitle "Travis: copy api key into template and commit"
@@ -343,7 +371,6 @@ function copyStaticFiles() {
   for fileName in $(ls -a "${FILES_FOLDER}/static/" | egrep -v "^..?$"); do
     if [ ! -f "$repoName/$fileName" ]; then
        copyStaticFile "$fileName" "$repoName"
-       updated=1
     else
        echo "Skipped: file already exists $fileName"
     fi
@@ -354,8 +381,8 @@ function copyStaticFiles() {
 
 function runOptiPng() {
   local mapRepo=$1
-  printTitle "Running optiPng ($(find $mapRepo -name "*.png" | wc -l) files)"
-  parallel optipng {} 2>&1 < <(find $mapRepo -name "*.png") | grep -i "error"
+  printTitle "Running optiPng ($(find "$mapRepo" -name "*.png" | wc -l) files)"
+  parallel optipng {} 2>&1 < <(find "$mapRepo" -name "*.png") | grep -i "error"
   echo "Done"
   echo
 }
@@ -364,7 +391,7 @@ function commitAndPushMapFiles() {
   local mapRepo=$1
   printTitle "Commit map files and push"
   (
-   cd $mapRepo
+   cd "$mapRepo"
    git add map
    git commit map -m 'add map files' | grep master
    git push origin master
@@ -428,6 +455,9 @@ find . -maxdepth 1 -name "*zip" | while read zipFile; do
  NORMALIZED_NAME=$(normalizeName "$zipFile")
  printGreenTitle "Processing Map ($COUNT of $MAP_COUNT): $NORMALIZED_NAME"
  extractMapToNormalizedFolder "$zipFile" "$NORMALIZED_NAME/map"
+ removeSpacesFromFileNames "$NORMALIZED_NAME"
+ formatXmlFiles "$NORMALIZED_NAME"
+ normalizeMapProperty "$NORMALIZED_NAME"
 
  # todo: kick off in background conversion of wav files to mp3
 

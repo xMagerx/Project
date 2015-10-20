@@ -2,7 +2,12 @@
 FAIL=0
 
 
-# TODO check map versioning
+# TODO:
+#  - check map versioning
+#  - spaces in file names
+#  - xml files are formatted
+#  - look for the word 'old' in filenames
+## strip trailing slash if included off of the map folder parameter value
 
 function usage() {
   echo "usage: $(basename "$0") -t <token_file> -m <map_repository>"
