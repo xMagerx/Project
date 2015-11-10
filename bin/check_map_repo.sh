@@ -76,7 +76,7 @@ function setGlobals() {
   PAGING="?page=1&per_page=10000"
   
   GIT_FILES=".git .gitignore map .travis.yml build.gradle"
-  MAP_FILES="map/place.txt map/polygons.txt map/polygons.txt map/baseTiles"
+  MAP_FILES="map/place.txt map/polygons.txt"
   MAP_FOLDERS="map/games"
 
   TRAVIS_SLUG="$ORG_NAME/$MAP"
