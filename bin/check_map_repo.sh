@@ -30,7 +30,7 @@ do
       shift 2
       ;;
     -m|--map)
-      MAP=${2//^\./}
+      MAP=$(echo "$2" | sed 's|/$||')
       shift 2
       ;;
     *)
