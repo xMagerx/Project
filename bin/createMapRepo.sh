@@ -382,7 +382,7 @@ function copyStaticFiles() {
 function runOptiPng() {
   local mapRepo=$1
   printTitle "Running optiPng ($(find "$mapRepo" -name "*.png" | wc -l) files)"
-  parallel optipng {} 2>&1 < <(find "$mapRepo" -name "*.png") | grep -i "error"
+  parallel optipng -nx {} 2>&1 < <(find "$mapRepo" -name "*.png") | grep -i "error"
   echo "Done"
   echo
 }
