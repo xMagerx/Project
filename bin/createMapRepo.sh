@@ -140,8 +140,8 @@ function normalizeName() {
      #  - strip the zip sufix
      #  - insert an underscore between lower case and upper case letter to break up camel casing
      #  - lower case everything
-     #  - upper case first letter of all words
      #  - replace spaces with underscores 
+     #  - remove leading period (can get that from input source of ls)
   local normalized=$(echo "$mapZip" | sed 's/.zip$//' | \
                 sed 's/\([a-z]\)\([A-Z]\)/\1_\2/g' | tr '[:upper:]' '[:lower:]' | \
                 sed "s/  */_/g" | sed 's|^\./||')
