@@ -1,5 +1,9 @@
 # TripleA Maps Project
 
+- TripleA game engine can be found at:  http://github.com/triplea-game/triplea
+- The triplea-maps organization: http://github.com/triplea-maps/, hosts community built maps
+- Maps are made available for live in-game download via the following configuration file: http://github.com/triplea-game/triplea/blob/master/triplea_maps.xml
+
 
 ### Documentation links and Admin tools:
 - [Map Maker Getting Started Page](https://github.com/triplea-maps/Project/wiki/Map-Makers:--Getting-Started-and-Workflow)
