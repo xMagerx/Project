@@ -2,8 +2,8 @@
 
 
 function usage() {
-  echo "usage: $(basename $0) -t <token_file_for_admin> -a <account_name_bot> -p <password_file_for_bot> -m <local_map_folder>"
-  echo " -a bot_account_name: bot account name, used to delete access tokens"
+  echo "usage: $(basename $0) -t <token_file_for_admin> (-a <account_name_bot>) -p <password_file_for_bot> -m <local_map_folder>"
+  echo " -a bot_account_name (optional): bot account name, used to delete access tokens"
   echo " -p bot_password_file: github auth api needs username password to delete access tokens" 
   echo " -t admin_token_file: path to a file containing an access token for an admin, able to delete the repository"
   echo " -m map_folder: local map repository folder that is the target of deletion"  
@@ -15,7 +15,7 @@ if [ $# -eq 0 ]; then
   usage
 fi
 
-GITHUB_ACCOUNT=""
+GITHUB_ACCOUNT="tripleabuilderbot"
 GITHUB_TOKEN_FILE=""
 GITHUB_PASSWORD_FILE=""
 MAP_FOLDER=""
