@@ -7,7 +7,7 @@ function usage() {
   echo " -p bot_password_file: github auth api needs username password to delete access tokens" 
   echo " -t admin_token_file: path to a file containing an access token for an admin, able to delete the repository"
   echo " -m map_folder: local map repository folder that is the target of deletion"  
-  echo "example: $(basename $0) -a tripleabuilderbot -t ~/.github/token -p ~/.github/bot_password -m MAP"
+  echo "example: $(basename $0) -t ~/.github/token -p ~/.github/bot_password (-a tripleabuilderbot) -m MAP"
   exit 1
 }
 
