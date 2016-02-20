@@ -2,12 +2,12 @@
 
 
 function usage() {
-  echo "usage: $(basename $0) -t <token_file_for_admin> (-a <account_name_bot>) -p <password_file_for_bot> -m <local_map_folder>"
-  echo " -a bot_account_name (optional): bot account name, used to delete access tokens"
-  echo " -p bot_password_file: github auth api needs username password to delete access tokens" 
-  echo " -t admin_token_file: path to a file containing an access token for an admin, able to delete the repository"
+  echo "usage: $(basename $0) -m <local_map_folder>"
+  echo "usage: $(basename $0) (-t <token_file_for_admin>) (-a <account_name_bot>) (-p <password_file_for_bot>) -m <local_map_folder>"
   echo " -m map_folder: local map repository folder that is the target of deletion"  
-  echo "example: $(basename $0) -t ~/.github/token -p ~/.github/bot_password (-a tripleabuilderbot) -m MAP"
+  echo " -a bot_account_name (optional): defaults to 'tripleabuilderbot' - bot account name, used to delete access tokens"
+  echo " -p bot_password_file (optional): defaults to '~/.github/bot_password' - github auth api needs username password to delete access tokens" 
+  echo " -t admin_token_file: defaults to '~/.github/token' - path to a file containing an access token for an admin, the token must have github authorization to be able to delete the repository"
   exit 1
 }
 
@@ -16,9 +16,8 @@ if [ $# -eq 0 ]; then
 fi
 
 GITHUB_ACCOUNT="tripleabuilderbot"
-GITHUB_TOKEN_FILE=""
-GITHUB_PASSWORD_FILE=""
-MAP_FOLDER=""
+GITHUB_TOKEN_FILE="$(cd ~; pwd)/.github/token"
+GITHUB_PASSWORD_FILE="$(cd ~; pwd)/.github/bot_password"
 
 while [[ $# -gt 1 ]]
 do
