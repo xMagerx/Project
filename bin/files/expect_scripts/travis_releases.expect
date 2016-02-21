@@ -37,7 +37,7 @@ if {$force_conservative} {
 
 
 set timeout -1
-spawn travis setup releases -R $slugName
+spawn travis setup releases --force -R $slugName
 match_max 100000
 expect -exact "Username: "
 send -- "$botAccount\r"
