@@ -1,6 +1,5 @@
 ## TripleA Maps Project
 
-### Links
 - [Map Maker Getting Started Page](https://github.com/triplea-maps/Project/wiki/Map-Makers:--Getting-Started-and-Workflow)
 - [Admin Maintenance Wiki Docs](http://github.com/triplea-maps/Project/wiki/Adding-a-New-Official-Map-Repository)
 - [Travis Builds - http://travis-ci.org/triplea-maps](http://travis-ci.org/triplea-maps)
