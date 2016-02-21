@@ -28,9 +28,14 @@ SCRIPT_NAME=$(basename "$0")
 
 function usage() {
   echo "Usage: ./$SCRIPT_NAME -a <admin_token_file> -b <bot_token_file> -p <bot_password_file>"
+  echo "Usage: ./$SCRIPT_NAME -d"
   echo "  admin_token_file = file with one line, an an organization owner"
   echo "  bot_token_file = personal access token of the github account"
   echo "  bot_password_file =  file containing the password of the bot account"
+  echo " -d = use defaults:"
+  echo "     -a ~/.github/token"
+  echo "     -b ~/.github/bot_token"
+  echo "     -p ~/.github/bot_password"
   exit 1
 }
 
@@ -43,6 +48,13 @@ while [[ $# -gt 1 ]]
 do
   key="$1"
   case $key in
+    -d|--defaults)
+      TOKEN_DIR=$(cd ~; pwd)/.github
+      ADMIN_TOKEN_FILE="$(TOKEN_DIR)/token"
+      BOT_TOKEN_FILE="$(TOKEN_DIR)/bot_token"
+      BOT_PASSWORD_FILE="$(TOKEN_DIR)/bot_password"
+      shift 2
+      ;;
     -a|--admin-token)
       ADMIN_TOKEN_FILE="$2"
       shift 2
