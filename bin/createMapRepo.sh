@@ -44,17 +44,17 @@ if [ $# == 0 ]; then
   usage
 fi
 
+if [ $# == 1 ]; then
+  TOKEN_DIR="$(cd ~; pwd)/.github"
+  ADMIN_TOKEN_FILE="$TOKEN_DIR/token"
+  BOT_TOKEN_FILE="$TOKEN_DIR/bot_token"
+  BOT_PASSWORD_FILE="$TOKEN_DIR/bot_password"
+fi
+
 while [[ $# -gt 1 ]]
 do
   key="$1"
   case $key in
-    -d|--defaults)
-      TOKEN_DIR=$(cd ~; pwd)/.github
-      ADMIN_TOKEN_FILE="$(TOKEN_DIR)/token"
-      BOT_TOKEN_FILE="$(TOKEN_DIR)/bot_token"
-      BOT_PASSWORD_FILE="$(TOKEN_DIR)/bot_password"
-      shift 2
-      ;;
     -a|--admin-token)
       ADMIN_TOKEN_FILE="$2"
       shift 2
@@ -416,12 +416,22 @@ function commitAndPushMapFiles() {
  ## todo
 githubAuthUrl="https://api.github.com/authorizations"
 printZipFilesFound
+
+echo "using admin token file: $ADMIN_TOKEN_FILE"
+echo "using bot token file: $BOT_TOKEN_FILE"
+echo "using bot password file: $BOT_PASSWORD_FILE"
+
+if [[ ! -f "$ADMIN_TOKEN_FILE" ]] || [[ ! -f "$BOT_TOKEN_FILE" ]] || [[ ! -f "$BOT_PASSWORD_FILE" ]]; then
+  echo "Check args, at least one of the passed in admin/token/password file did not exist"
+fi
+
 checkFileExists "$ADMIN_TOKEN_FILE"
 checkFileExists "$BOT_TOKEN_FILE"
 checkFileExists "$BOT_PASSWORD_FILE"
 
 verifyDependency "expect"
 verifyDependency "parallel"
+verifyDependency "travis"
 
 FILES_FOLDER="$(curFolder)/files"
 
