@@ -220,7 +220,6 @@ function deleteBotGitHubToken() {
   if [ ! -z "$oldTokenId" ]; then
     curl -X DELETE -u "$botAuth" --silent "https://api.github.com/authorizations/$oldTokenId"
   fi
-
 }
 
 
@@ -237,14 +236,12 @@ function resetTravisBotToken() {
 }
 
 function initTravis() {
+  printTitle "Verify logged in to travis"
+  travis whoami || die "Not logged in to travis"
+  
   printTitle "--Setting up Travis--"
   export mapRepo=$1
   local botPassword=$2
-  if [ -f "$mapRepo/.travis.yml" ]; then
-    echo "Skipped: .travis.yml already exists"
-    echo
-    return
-  fi
   (
    cd "$mapRepo"
    printTitle "Travis: sync"
@@ -255,15 +252,19 @@ function initTravis() {
    local tokenName="automatic releases for ${ORG_NAME}/$mapRepo (tag pushes)"
    local travisValues=$(travis env -R "$ORG_NAME/$mapRepo" --org list)
 
+     ## set the tokens only if they do not already exist
    echo "$travisValues" | grep "GITHUB_PERSONAL" || resetTravisBotToken "$botPassword" "$tokenName"
    echo "$travisValues" | grep "REPO_NAME" || travis env set -P REPO_NAME "$mapRepo"
    echo "$travisValues" | grep "MAP_VERSION" || travis env set -P MAP_VERSION 0
 
-   echo
-   printTitle "Travis Init and Enable"
-   "$FILES_FOLDER/expect_scripts/travis_init.expect" "$ORG_NAME/$mapRepo"
-
-
+   if [ -f .travis.yml ]; then
+     echo "Skipped: Travis Init and Enable"
+     echo
+   else
+     echo
+     printTitle "Travis Init and Enable"
+     "$FILES_FOLDER/expect_scripts/travis_init.expect" "$ORG_NAME/$mapRepo"
+   fi
    echo
    printTitle "Travis: Setup Releases" 
    deleteBotGitHubToken "$botPassword" "automatic releases for $ORG_NAME/$mapRepo"
@@ -432,6 +433,7 @@ checkFileExists "$BOT_PASSWORD_FILE"
 verifyDependency "expect"
 verifyDependency "parallel"
 verifyDependency "travis"
+verifyDependency "xmllint"
 
 FILES_FOLDER="$(curFolder)/files"
 
