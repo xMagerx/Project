@@ -21,6 +21,9 @@ if [ $# == 0 ]; then
   usage
 fi
 
+
+TOKEN_FILE="$(cd ~; pwd)/.github/token"
+
 while [[ $# -gt 1 ]]
 do
   key="$1"
@@ -73,7 +76,7 @@ function setGlobals() {
   GITHUB_AUTH="Authorization: token $ACCESS_TOKEN"
   ORG_NAME="triplea-maps"
   MAP_ADMIN_TEAM_ID=1797261
-  PAGING="?page=1&per_page=10000"
+  PAGING="?page=1%26per_page=10000"
   
   GIT_FILES=".git .gitignore map .travis.yml build.gradle"
   MAP_FILES="map/place.txt map/polygons.txt"
@@ -111,9 +114,7 @@ function checkExpectedFilesAndFoldersPresent() {
 function checkMapXml() {
   local mapFolder=$1
   
-  if [ ! -d "$mapFolder/map/games" ]; then
-    fail "Did not find folder $mapFolder/map/games"
-  else
+  if [ -d "$mapFolder/map/games" ]; then
     ## check for at least one map xml
     local XML_COUNT=$(find "$mapFolder/map/games" -name "*.xml" | grep -c "^")
     if [ "$XML_COUNT" == 0 ]; then
