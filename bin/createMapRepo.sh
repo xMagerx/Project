@@ -232,6 +232,7 @@ function resetTravisBotToken() {
 
   local newBotToken=$(curl --silent -d "{\"note\":\"$tokenName\", \"scopes\": [\"public_repo\"] }" \
        -u "$botAuth" "$githubAuthUrl" 2>&1 | grep  "\"token\": " | sed 's|.*: "||' | sed 's|",$||');
+  echo "Updating GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS"
   travis env set GITHUB_PERSONAL_ACCESS_TOKEN_FOR_TRAVIS "$newBotToken"
 }
 
@@ -252,11 +253,6 @@ function initTravis() {
    local tokenName="automatic releases for ${ORG_NAME}/$mapRepo (tag pushes)"
    local travisValues=$(travis env -R "$ORG_NAME/$mapRepo" --org list)
 
-     ## set the tokens only if they do not already exist
-   echo "$travisValues" | grep "GITHUB_PERSONAL" || resetTravisBotToken "$botPassword" "$tokenName"
-   echo "$travisValues" | grep "REPO_NAME" || travis env set -P REPO_NAME "$mapRepo"
-   echo "$travisValues" | grep "MAP_VERSION" || travis env set -P MAP_VERSION 0
-
    if [ -f .travis.yml ]; then
      echo "Skipped: Travis Init and Enable"
      echo
@@ -265,18 +261,28 @@ function initTravis() {
      printTitle "Travis Init and Enable"
      "$FILES_FOLDER/expect_scripts/travis_init.expect" "$ORG_NAME/$mapRepo"
    fi
-   echo
-   printTitle "Travis: Setup Releases" 
-   deleteBotGitHubToken "$botPassword" "automatic releases for $ORG_NAME/$mapRepo"
-   "$FILES_FOLDER/expect_scripts/travis_releases.expect" "$ORG_NAME/$mapRepo" "$BOT_ACCOUNT" "$botPassword" | tail -n +2
+     
+     ## set the tokens only if they do not already exist
+   echo "$travisValues" | grep "GITHUB_PERSONAL" || resetTravisBotToken "$botPassword" "$tokenName"
+   echo "$travisValues" | grep "REPO_NAME" || travis env set -P REPO_NAME "$mapRepo"
+   echo "$travisValues" | grep "MAP_VERSION" || travis env set -P MAP_VERSION 0
 
    echo
-   printTitle "Travis: copy api key into template and commit"
-   local newKey="$(grep secure .travis.yml)"
-   sed "s|.*secure:.*|$newKey|" "$TRAVIS_TEMPLATE_FILE" > .travis.yml
-
-   git add .travis.yml
-   git commit .travis.yml -m 'Add map build configuration file: .travis.yml' | grep "^.master" 
+  
+   local releasesConfigured=$(grep -c "secure" .travis.yml)
+   if [ "$releasesConfigured" == 0 ]; then
+     printTitle "Travis: Setup Releases" 
+     deleteBotGitHubToken "$botPassword" "automatic releases for $ORG_NAME/$mapRepo"
+     "$FILES_FOLDER/expect_scripts/travis_releases.expect" "$ORG_NAME/$mapRepo" "$BOT_ACCOUNT" "$botPassword" | tail -n +2
+     echo
+     printTitle "Travis: copy api key into template and commit"
+     local newKey="$(grep secure .travis.yml)"
+     sed "s|.*secure:.*|$newKey|" "$TRAVIS_TEMPLATE_FILE" > .travis.yml
+     git add .travis.yml
+     git commit .travis.yml -m 'Add map build configuration file: .travis.yml' | grep "^.master" 
+   else
+     printTitle "Travis: Skipped Setup Releases, already configured, .travis.yml contains a secure token" 
+   fi
   )
   echo
 }
