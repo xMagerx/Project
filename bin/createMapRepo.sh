@@ -164,6 +164,8 @@ function normalizeName() {
 function extractMapToNormalizedFolder() {
   local mapZip=$1
   local targetFolder=$2
+
+  echo "Extracting: $mapZip into: $targetFolder (from $(pwd))"
     ## in the zip and folder name, remove the leading "./"
   printTitle "Extracting zip"
   
@@ -463,8 +465,6 @@ ADMIN_GITHUB_AUTH="Authorization: token $ADMIN_TOKEN"
 
 GITHUB_PAGE_ARGS="page=1&per_page=10000"
 
-
-
 BOT_PASSWORD=$(head -1 "$BOT_PASSWORD_FILE")
 checkNotEmpty "$BOT_PASSWORD"
 checkValidCredentials "$ADMIN_TOKEN" "$BOT_ACCOUNT" "$BOT_PASSWORD"
@@ -483,19 +483,18 @@ find . -maxdepth 1 -name "*zip" | while read zipFile; do
  START_TIME=$(date +%s)
  COUNT=$((COUNT+1)) 
  NORMALIZED_NAME=$(normalizeName "$zipFile")
+ mkdir -p $NORMALIZED_NAME 
  printGreenTitle "Processing Map ($COUNT of $MAP_COUNT): $NORMALIZED_NAME"
- extractMapToNormalizedFolder "$zipFile" "$NORMALIZED_NAME/map"
- removeSpacesFromFileNames "$NORMALIZED_NAME"
- formatXmlFiles "$NORMALIZED_NAME"
- normalizeMapProperty "$NORMALIZED_NAME"
-
- # todo: kick off in background conversion of wav files to mp3
 
  createRemoteGitHubRepo "$NORMALIZED_NAME"
  initRepo "$NORMALIZED_NAME"
  createReadme "$NORMALIZED_NAME"
+ extractMapToNormalizedFolder "$zipFile" "$NORMALIZED_NAME/map"
+ removeSpacesFromFileNames "$NORMALIZED_NAME"
+ formatXmlFiles "$NORMALIZED_NAME"
+ normalizeMapProperty "$NORMALIZED_NAME"
  printTitle "Cleaning up line endings"
- find "$NORMALIZED_NAME" -type f -not -name "*.png" -not -name "*.jpeg" -not -name "*.pdg" -not -name "*jpg" -not -name "*gif" | \
+ find "$NORMALIZED_NAME" -type f -name "*.txt" -name "*.xml" | \
        grep -v "^$NORMALIZED_NAME/.git/" | xargs dos2unix 2>&1 | egrep -o "converting|not a regular file|No such file" | sort | uniq -c
  echo
 
