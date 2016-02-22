@@ -76,7 +76,7 @@ function setGlobals() {
   GITHUB_AUTH="Authorization: token $ACCESS_TOKEN"
   ORG_NAME="triplea-maps"
   MAP_ADMIN_TEAM_ID=1797261
-  PAGING="?page=1%26per_page=10000"
+  PAGING="?page=1&per_page=10000"
   
   GIT_FILES=".git .gitignore map .travis.yml build.gradle"
   MAP_FILES="map/place.txt map/polygons.txt"
