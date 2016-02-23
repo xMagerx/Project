@@ -29,6 +29,7 @@ SCRIPT_NAME=$(basename "$0")
 function usage() {
   echo "Usage: ./$SCRIPT_NAME -a <admin_token_file> -b <bot_token_file> -p <bot_password_file>"
   echo "Usage: ./$SCRIPT_NAME -d"
+  echo "Usage: ./$SCRIPT_NAME -m <MAP>"
   echo "  admin_token_file = file with one line, an an organization owner"
   echo "  bot_token_file = personal access token of the github account"
   echo "  bot_password_file =  file containing the password of the bot account"
@@ -42,13 +43,6 @@ function usage() {
 
 if [ $# == 0 ]; then
   usage
-fi
-
-if [ $# == 1 ]; then
-  TOKEN_DIR="$(cd ~; pwd)/.github"
-  ADMIN_TOKEN_FILE="$TOKEN_DIR/token"
-  BOT_TOKEN_FILE="$TOKEN_DIR/bot_token"
-  BOT_PASSWORD_FILE="$TOKEN_DIR/bot_password"
 fi
 
 while [[ $# -gt 1 ]]
@@ -67,7 +61,10 @@ do
       BOT_PASSWORD_FILE="$2"
       shift 2
       ;;
-
+    -m|--map)
+      MAP="$2"
+      shift 2
+      ;;
     *)
       echo "${bold}Unrecognized argument: $key${normal}"
       usage
@@ -218,6 +215,10 @@ function deleteBotGitHubToken() {
   local tokenName=$2
   
   local botAuth="$BOT_ACCOUNT:$botPassword"
+  
+  echo "Deleting token $tokenName"
+  curl --silent -u "$botAuth" "$githubAuthUrl" 2>&1 | grep -i -B3 "\"name\": \"$tokenName\"" 
+  
   local oldTokenId=$(curl --silent -u "$botAuth" "$githubAuthUrl" 2>&1 | grep -i -B3 "\"name\": \"$tokenName\"" | grep id | sed 's|.*: ||g' | sed 's|,$||');
   if [ ! -z "$oldTokenId" ]; then
     curl -X DELETE -u "$botAuth" --silent "https://api.github.com/authorizations/$oldTokenId"
@@ -274,7 +275,10 @@ function initTravis() {
    local releasesConfigured=$(grep -c "secure" .travis.yml)
    if [ "$releasesConfigured" == 0 ]; then
      printTitle "Travis: Setup Releases" 
+     echo "Delete the old token"
      deleteBotGitHubToken "$botPassword" "automatic releases for $ORG_NAME/$mapRepo"
+     sleep 5
+     echo "run travis setup releases with expect"
      "$FILES_FOLDER/expect_scripts/travis_releases.expect" "$ORG_NAME/$mapRepo" "$BOT_ACCOUNT" "$botPassword" | tail -n +2
      echo
      printTitle "Travis: copy api key into template and commit"
@@ -423,16 +427,23 @@ function commitAndPushMapFiles() {
 ###########
 
  ## todo
-githubAuthUrl="https://api.github.com/authorizations"
-printZipFilesFound
+githubAuthUrl="https://api.github.com/authorizations?per_page=10000&page=1"
+
+if [ -z "$MAP" ]; then
+  printZipFilesFound
+else
+  printTitle "Processing map folder: $MAP"
+fi 
+
+
+TOKEN_DIR="$(cd ~; pwd)/.github"
+ADMIN_TOKEN_FILE="$TOKEN_DIR/token"
+BOT_TOKEN_FILE="$TOKEN_DIR/bot_token"
+BOT_PASSWORD_FILE="$TOKEN_DIR/bot_password"
 
 echo "using admin token file: $ADMIN_TOKEN_FILE"
 echo "using bot token file: $BOT_TOKEN_FILE"
 echo "using bot password file: $BOT_PASSWORD_FILE"
-
-if [[ ! -f "$ADMIN_TOKEN_FILE" ]] || [[ ! -f "$BOT_TOKEN_FILE" ]] || [[ ! -f "$BOT_PASSWORD_FILE" ]]; then
-  echo "Check args, at least one of the passed in admin/token/password file did not exist"
-fi
 
 checkFileExists "$ADMIN_TOKEN_FILE"
 checkFileExists "$BOT_TOKEN_FILE"
@@ -470,16 +481,27 @@ checkNotEmpty "$BOT_PASSWORD"
 checkValidCredentials "$ADMIN_TOKEN" "$BOT_ACCOUNT" "$BOT_PASSWORD"
 
 echo
-printTitle "Do Travis Login"
-
-travis login -g "$BOT_TOKEN"
 
 export -f printTitle
 export -f extractMapToNormalizedFolder
 
-MAP_COUNT=$(find . -maxdepth 1 -name "*zip" | wc -l)
+printTitle "Do Travis Login"
+travis login -g "$BOT_TOKEN"
+
 COUNT=0
-find . -maxdepth 1 -name "*zip" | while read zipFile; do
+
+
+MAP_LIST=/tmp/tmp.$(date +%s)
+if [ -z "$MAP" ]; then
+ find . -name "*.zip" > $MAP_LIST
+ MAP_COUNT=$(find . -maxdepth 1 -name "*zip" | wc -l)
+else
+  echo "$MAP" > $MAP_LIST
+  MAP_COUNT=1
+fi
+
+echo before loop using $MAP_LIST
+cat $MAP_LIST | while read zipFile; do
  START_TIME=$(date +%s)
  COUNT=$((COUNT+1)) 
  NORMALIZED_NAME=$(normalizeName "$zipFile")
@@ -489,7 +511,10 @@ find . -maxdepth 1 -name "*zip" | while read zipFile; do
  createRemoteGitHubRepo "$NORMALIZED_NAME"
  initRepo "$NORMALIZED_NAME"
  createReadme "$NORMALIZED_NAME"
- extractMapToNormalizedFolder "$zipFile" "$NORMALIZED_NAME/map"
+
+ if [ -z "$MAP" ]; then
+   extractMapToNormalizedFolder "$zipFile" "$NORMALIZED_NAME/map"
+ fi
  removeSpacesFromFileNames "$NORMALIZED_NAME"
  formatXmlFiles "$NORMALIZED_NAME"
  normalizeMapProperty "$NORMALIZED_NAME"
