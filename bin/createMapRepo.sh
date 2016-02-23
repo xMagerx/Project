@@ -526,7 +526,9 @@ cat $MAP_LIST | while read zipFile; do
  addMapAdminTeam "$NORMALIZED_NAME"
  initTravis "$NORMALIZED_NAME" "$BOT_PASSWORD"
  copyStaticFiles "$NORMALIZED_NAME"
- runOptiPng "$NORMALIZED_NAME"
+ if [ -z "$MAP" ]; then
+   runOptiPng "$NORMALIZED_NAME"
+ fi
  commitAndPushMapFiles "$NORMALIZED_NAME" &
  END_TIME=$(date +%s)
  printBlueTitle "<$NORMALIZED_NAME processed in $((END_TIME-START_TIME))s>"
