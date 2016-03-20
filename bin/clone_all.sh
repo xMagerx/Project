@@ -9,7 +9,7 @@ for i in $(curl --silent "https://api.github.com/orgs/triplea-maps/repos?page=1&
 
  echo $mapName - $i
  if [ ! -d "$mapName" ]; then
-   echo git clone $i
+   git clone $i
  fi
 done
 
