@@ -1,11 +1,18 @@
 ## TripleA Maps Project
 
+- Game engine:  http://github.com/triplea-game/triplea
+
+### Map Maker Setup
 - [Map Maker Getting Started Page](https://github.com/triplea-maps/Project/wiki/Map-Makers:--Getting-Started-and-Workflow)
+- Game engine configuration that controls which maps are available for in-game download: http://github.com/triplea-game/triplea/blob/master/triplea_maps.xml
+- Community map listing: http://github.com/triplea-maps
+
+### Admin Setup
 - [Admin Maintenance Wiki Docs](http://github.com/triplea-maps/Project/wiki/Adding-a-New-Official-Map-Repository)
 - [Travis Builds - http://travis-ci.org/triplea-maps](http://travis-ci.org/triplea-maps)
-- Game engine:  http://github.com/triplea-game/triplea
-- Community map listing: http://github.com/triplea-maps
-- Game engine configuration that controls which maps are available for in-game download: http://github.com/triplea-game/triplea/blob/master/triplea_maps.xml
+
+#### Setup
+First clone this project. Then run the bin/clone_all.sh script to clone all of the map repos. Note, new map repos will take time to show up in the github CLI API, perhaps up to a day or more. 
 
 
 ### Reporting map bugs, suggesting map changes
