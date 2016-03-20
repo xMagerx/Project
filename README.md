@@ -8,11 +8,11 @@
 - Community map listing: http://github.com/triplea-maps
 
 ### Admin Setup
+First clone this project. Then run the bin/clone_all.sh script to clone all of the map repos. Note, new map repos will take time to show up in the github CLI API, perhaps up to a day or more. 
+
+Links:
 - [Admin Maintenance Wiki Docs](http://github.com/triplea-maps/Project/wiki/Adding-a-New-Official-Map-Repository)
 - [Travis Builds - http://travis-ci.org/triplea-maps](http://travis-ci.org/triplea-maps)
-
-#### Setup
-First clone this project. Then run the bin/clone_all.sh script to clone all of the map repos. Note, new map repos will take time to show up in the github CLI API, perhaps up to a day or more. 
 
 
 ### Reporting map bugs, suggesting map changes
