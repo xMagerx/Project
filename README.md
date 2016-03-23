@@ -7,6 +7,9 @@
 - Game engine configuration that controls which maps are available for in-game download: http://github.com/triplea-game/triplea/blob/master/triplea_maps.xml
 - Community map listing: http://github.com/triplea-maps
 - How to add your map for in-game download: https://github.com/triplea-maps/Project/wiki/Update-Triplea_maps.yaml
+- Once you have a map added to github, the admins will create a team that matches your github name. You'll be added to this team and given admin rights for that team (so you can add more people). That team will also be added as admin for any map which you own. 
+- Finally, jump on gitter: https://gitter.im/triplea-maps/Project
+  - You can chat there about maps, map making. And also you'll hear announcements as well, and the general community chatter. If you drop off for some time, for a few weeks or a few months, then you'll need to review the docs a bit to see what you missed. At least, that is the intent. So if you have any questions, where you want to reach map makers and the map admins, you can ask them on gitter, and chances are decent they'll be answered within hours or a day. 
 
 ### Reporting map bugs, suggesting map changes
 
