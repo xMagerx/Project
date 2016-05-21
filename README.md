@@ -60,10 +60,10 @@ This file controls which maps are available in the game: http://github.com/tripl
 Click the pencil icon to start editing the file. Github will guide you through the process of creating  a pull request which will notify the game engine admins of the changes (note, we have map admins, and we also have game engine admins. The first are admins, the second are the game devs). 
 
 Now edit the file to include your map in the appropriate section, or to change the version number on your map if your map is already included. Then submit your pull request. The game engine devs will get an email with a link to the pull request. 
-* If you would like to update your pull request, here the steps (in this example we will assume your github username is 'MappyMcMapFace"
-1. Head to your fork of triplea: https://github.com/MappyMcMapFace/triplea
-2. Click the branches button to view your branches: https://github.com/MappyMcMapFace/triplea/branches
-3. Find the branch which you used to create the PR: https://github.com/MappyMcMapFace/triplea/tree/patch-1
+* If you would like to update your pull request, here the steps (in this example we will assume your github username is "Mappy"
+1. Head to your fork of triplea: https://github.com/Mappy/triplea
+2. Click the branches button to view your branches: https://github.com/Mappy/triplea/branches
+3. Find the branch which you used to create the PR: https://github.com/Mappy/triplea/tree/patch-1
 4. Update the triplea_yaml file as normal, click it and use the pencil icon,
 *profit* The update/commit of the triplea_yaml file will automatically update the PR
 
