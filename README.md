@@ -22,13 +22,65 @@
 
 ## Submitting Maps, and Map Zip Requirements
 
-### If you have a map zip:
 
- - create an issue in this project with a link to the map zip: https://github.com/triplea-maps/Project/issues/new
+### Step 1: Request a Github Repository for Your Map
+
+Create a ticket here: http://github.com/triplea-maps/Project/issues/new
+
+Subject: Please Create Map Repo: {name}
+Body:
+- post a link to your map zip file and tell us the name of your map
+or
+- request that a empty shell repository be created. A shell repository will have an empty map folder where you can then use github to drag and drop your files in to create your map from scratch.
 
 * map zip requirements:
  - Do not zip the map folder, zip all of the files in one zip. Said another way, change directory into your map folder, then select all and zip that. Contract that with going up a folder and zipping up the map folder. When the zip file is extracted, there should be a lot of files and a 'games' folder at the top level. For better or worse - this is the format the engine is expecting.
  
+
+### Step 2: Continue working on your map
+
+Once you're set up in a repository, any update to it will create automatically a new map zip folder that will be deployed to your repository 'releases' section, for example:  http://github.com/triplea-maps/tutorial/releases
+
+The work flow will probably look like this:**
+- download the latest map zip you have
+- extract it to a folder in ~/triplea/maps (where ~ is your home folder)
+- make changes/fixes to the map until you've made some land mark progress
+
+Then
+A) 
+- Do a git clone
+- copy everything that is inside of your extracted file to the "map" folder inside of the new clone
+- git commit and push everything (Git for Windows, Source tree are two tools that make this easy).
+
+or B)
+- use Github drag and drop to copy in new files and make updates
+- use Github to update XML files using your web browser, open the XML file locally, then selct all copy paste  to github
+
+** BIG NOTE: We will see about updating the game so a map clone can be loaded by the game directly.
+
+<h3>Step 3: Request your map to be included for in-game download</h3>
+
+This file controls which maps are available in the game: http://github.com/triplea-game/triplea/blob/master/triplea_maps.xml
+
+Click the pencil icon to start editing the file. Github will guide you through the process of creating  a pull request which will notify the game engine admins of the changes (note, we have map admins, and we also have game engine admins. The first are admins, the second are the game devs). 
+
+Now edit the file to include your map in the appropriate section, or to change the version number on your map if your map is already included. Then submit your pull request. The game engine devs will get an email with a link to the pull request. 
+
+
+
+To clarify how things will work:
+- you'll update your map files, and automatically get a new map zip in the releases section of your repo
+- Remember the URL of the map zip release,  head over to , http://github.com/triplea-game/triplea/blob/master/triplea_maps.yaml
+- Click the pencil icon, find the lines corresponding to your map, and update the URL of your map
+- Then click the save/submit pull request buttons, and you'll see the pull request enter the game engine PR queue: http://github.com/triplea-game/triplea/pulls. 
+- Admins will get an email about the new PR, they can check out the changes from their web browser and click a button to accept. Any comments they make will be sent to you via email, which you can then view on the PR.
+
+
+
+
+
+
+
 ### Github repo change ownership option
 
 If you would prefer, you can mimic the file structure of an existing map repo, and upload that to a repo which you own. Then in the github repository settings, there is a change ownership option which can move the repo to 'triplea-maps'. From there the map admins would set up the '.travis.yml' file to have an automated map zip build.
