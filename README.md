@@ -1,22 +1,18 @@
 # TripleA Maps Project
 - Game engine:  http://github.com/triplea-game/triplea
 
-## Reporting map bugs, suggesting map changes
+## How to Suggest an Update to a Map / How to Submit a Map Bug Report
 
-* Find the map repository hosting the map in question: http://github.com/triplea-maps
-  * If you have trouble finding a map, remember that map repository names are all lower case, and have underscores instead of spaces
-* Once at the repository page, say for example: "http://github.com/triplea-maps/world_at_war", look for the "issues" link and click "new". Fill out the web form, give the issue a title and add details about the problem, then click submit. Alternatively, if you know the repostory url, the new issue URL is pretty easy to type in manually: http://github.com/triplea-maps/world_at_war/issues/new
-* When reporting an issue, a key is to be as specific and as consice as possible. For example, state explicity what the problem is, when it happens, and what you expected to have happened. This will make it much easier to identify and solve the problem.
-* For reporting problems global to all maps, please report it in the map Project ticket queue: http://github.com/triplea-maps/Project/issues/new, or the source forge forums: http://triplea.sourceforge.net/mywiki/Forum
-* Game bugs can be reported at: http://github.com/triplea-game/triplea/issues/new
+* Find the map you would like changed: http://github.com/triplea-maps
+* Find and click on the "issues" link, click "new", and fill out the web form that follows. It's okay to be brief, but please be specific.
+* For reporting problems global to all maps, please report it in the map Project ticket queue: http://github.com/triplea-maps/Project/issues/new
+* Game bugs should be reported with the game engine: http://github.com/triplea-game/triplea/issues/new
 
 ## Map Maker Setup
 - [Map Maker Getting Started Page](https://github.com/triplea-maps/Project/wiki/Map-Makers:--Getting-Started-and-Workflow)
-- Game engine configuration that controls which maps are available for in-game download: http://github.com/triplea-game/triplea/blob/master/triplea_maps.xml
-- Community map listing: http://github.com/triplea-maps
+- Game engine configuration that controls which maps are available for in-game download: http://github.com/triplea-game/triplea/blob/master/triplea_yaml.xml
 - How to add your map for in-game download: https://github.com/triplea-maps/Project/wiki/Update-Triplea_maps.yaml
-- Once you have a map added to github, the admins will create a team that matches your github name. You'll be added to this team and given admin rights for that team (so you can add more people). That team will also be added as admin for any map which you own. 
-- Finally, jump on gitter: https://gitter.im/triplea-maps/Project
+- Jump on gitter: https://gitter.im/triplea-maps/Project
   - You can chat there about maps, map making. And also you'll hear announcements as well, and the general community chatter. If you drop off for some time, for a few weeks or a few months, then you'll need to review the docs a bit to see what you missed. At least, that is the intent. So if you have any questions, where you want to reach map makers and the map admins, you can ask them on gitter, and chances are decent they'll be answered within hours or a day. 
  
   
@@ -35,7 +31,6 @@ or
 * map zip requirements:
  - Do not zip the map folder, zip all of the files in one zip. Said another way, change directory into your map folder, then select all and zip that. Contract that with going up a folder and zipping up the map folder. When the zip file is extracted, there should be a lot of files and a 'games' folder at the top level. For better or worse - this is the format the engine is expecting.
  
-
 
 ### Step 2: Continue working on your map
 
@@ -82,10 +77,6 @@ To clarify how things will work:
 - Admins will get an email about the new PR, they can check out the changes from their web browser and click a button to accept. Any comments they make will be sent to you via email, which you can then view on the PR.
 
 
-
-
-
-
 ### Github repo change ownership option
 
 If you would prefer, you can mimic the file structure of an existing map repo, and upload that to a repo which you own. Then in the github repository settings, there is a change ownership option which can move the repo to 'triplea-maps'. From there the map admins would set up the '.travis.yml' file to have an automated map zip build.
@@ -119,6 +110,8 @@ Links:
 
 
 #### Stage the zip file
+**Note**: Check that the zip file is zipped correclty. If a "map_name.zip" unzips to a "map_name" folder, then it was zipped 'wrong'. Unzip it, cd to the map_name folder, then rezip it with: `zip -r map_name.zip *`
+
 I have a ~/work/maps folder where I stage/root everything. Move the map zip file in to that folder. Then you'll run `./Project/bin/createMapRepo.sh -m <map>`
 
 
