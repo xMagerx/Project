@@ -55,7 +55,7 @@ or B)
 - use Github drag and drop to copy in new files and make updates
 - use Github to update XML files using your web browser, open the XML file locally, then selct all copy paste  to github
 
-** BIG NOTE: We will see about updating the game so a map clone can be loaded by the game directly.
+** BIG NOTE: We will see about updating the game so a map clone can be loaded by the game directly. (https://github.com/triplea-game/triplea/issues/703)
 
 <h3>Step 3: Request your map to be included for in-game download</h3>
 
