@@ -20,6 +20,14 @@
 * For reporting problems global to all maps, please report it in the map Project ticket queue: http://github.com/triplea-maps/Project/issues/new, or the source forge forums: http://triplea.sourceforge.net/mywiki/Forum
 * Game bugs can be reported at: http://github.com/triplea-game/triplea/issues/new
 
+### Submitting Maps, and Map Zip Requirements
+* If you have a map zip:
+ - create an issue in this project with a link to the map zip: https://github.com/triplea-maps/Project/issues/new
+* map zip requirements:
+ - Do not zip the map folder, zip all of the files in one zip. Said another way, change directory into your map folder, then select all and zip that. Contract that with going up a folder and zipping up the map folder. When the zip file is extracted, there should be a lot of files and a 'games' folder at the top level. For better or worse - this is the format the engine is expecting.
+ 
+
+
 ### Admin Setup
 
 To clone everything:
