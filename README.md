@@ -36,6 +36,7 @@ or
  - Do not zip the map folder, zip all of the files in one zip. Said another way, change directory into your map folder, then select all and zip that. Contract that with going up a folder and zipping up the map folder. When the zip file is extracted, there should be a lot of files and a 'games' folder at the top level. For better or worse - this is the format the engine is expecting.
  
 
+
 ### Step 2: Continue working on your map
 
 Once you're set up in a repository, any update to it will create automatically a new map zip folder that will be deployed to your repository 'releases' section, for example:  http://github.com/triplea-maps/tutorial/releases
@@ -64,6 +65,12 @@ This file controls which maps are available in the game: http://github.com/tripl
 Click the pencil icon to start editing the file. Github will guide you through the process of creating  a pull request which will notify the game engine admins of the changes (note, we have map admins, and we also have game engine admins. The first are admins, the second are the game devs). 
 
 Now edit the file to include your map in the appropriate section, or to change the version number on your map if your map is already included. Then submit your pull request. The game engine devs will get an email with a link to the pull request. 
+* If you would like to update your pull request, here the steps (in this example we will assume your github username is 'MappyMcMapFace"
+1. Head to your fork of triplea: https://github.com/MappyMcMapFace/triplea
+2. Click the branches button to view your branches: https://github.com/MappyMcMapFace/triplea/branches
+3. Find the branch which you used to create the PR: https://github.com/MappyMcMapFace/triplea/tree/patch-1
+4. Update the triplea_yaml file as normal, click it and use the pencil icon,
+*profit* The update/commit of the triplea_yaml file will automatically update the PR
 
 
 
@@ -73,7 +80,6 @@ To clarify how things will work:
 - Click the pencil icon, find the lines corresponding to your map, and update the URL of your map
 - Then click the save/submit pull request buttons, and you'll see the pull request enter the game engine PR queue: http://github.com/triplea-game/triplea/pulls. 
 - Admins will get an email about the new PR, they can check out the changes from their web browser and click a button to accept. Any comments they make will be sent to you via email, which you can then view on the PR.
-
 
 
 
