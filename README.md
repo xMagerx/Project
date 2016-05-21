@@ -1,8 +1,8 @@
-## TripleA Maps Project
+# TripleA Maps Project
 
 - Game engine:  http://github.com/triplea-game/triplea
 
-### Map Maker Setup
+## Map Maker Setup
 - [Map Maker Getting Started Page](https://github.com/triplea-maps/Project/wiki/Map-Makers:--Getting-Started-and-Workflow)
 - Game engine configuration that controls which maps are available for in-game download: http://github.com/triplea-game/triplea/blob/master/triplea_maps.xml
 - Community map listing: http://github.com/triplea-maps
@@ -11,7 +11,7 @@
 - Finally, jump on gitter: https://gitter.im/triplea-maps/Project
   - You can chat there about maps, map making. And also you'll hear announcements as well, and the general community chatter. If you drop off for some time, for a few weeks or a few months, then you'll need to review the docs a bit to see what you missed. At least, that is the intent. So if you have any questions, where you want to reach map makers and the map admins, you can ask them on gitter, and chances are decent they'll be answered within hours or a day. 
 
-### Reporting map bugs, suggesting map changes
+## Reporting map bugs, suggesting map changes
 
 * Find the map repository hosting the map in question: http://github.com/triplea-maps
   * If you have trouble finding a map, remember that map repository names are all lower case, and have underscores instead of spaces
@@ -20,15 +20,20 @@
 * For reporting problems global to all maps, please report it in the map Project ticket queue: http://github.com/triplea-maps/Project/issues/new, or the source forge forums: http://triplea.sourceforge.net/mywiki/Forum
 * Game bugs can be reported at: http://github.com/triplea-game/triplea/issues/new
 
-### Submitting Maps, and Map Zip Requirements
-* If you have a map zip:
+## Submitting Maps, and Map Zip Requirements
+
+### If you have a map zip:
+
  - create an issue in this project with a link to the map zip: https://github.com/triplea-maps/Project/issues/new
+
 * map zip requirements:
  - Do not zip the map folder, zip all of the files in one zip. Said another way, change directory into your map folder, then select all and zip that. Contract that with going up a folder and zipping up the map folder. When the zip file is extracted, there should be a lot of files and a 'games' folder at the top level. For better or worse - this is the format the engine is expecting.
  
+### Github repo change ownership option
 
+If you would prefer, you can mimic the file structure of an existing map repo, and upload that to a repo which you own. Then in the github repository settings, there is a change ownership option which can move the repo to 'triplea-maps'. From there the map admins would set up the '.travis.yml' file to have an automated map zip build.
 
-### Admin Setup
+## Admin Setup
 
 To clone everything:
 ```
