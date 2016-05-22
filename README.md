@@ -130,3 +130,15 @@ Usage: ./createMapRepo.sh -m <MAP>
 $ ./Project/bin/createMapRepo.sh -m big_world_1939.zip 
 
 ```
+
+### Admin Fix Travis - Regenerate Tokens
+Each map needs two tokens on the builder bot account.
+1. One that looks like this (hand created): automatic releases for triplea-maps/elemental_forces (tag pushes)
+2. A second that looks like this (setup by travis ruby): automatic releases for triplea-maps/elemental_forces
+
+
+To re-kick the travis token generation:
+- locally find the .travis.yml file and delete everything in the 'deploy section'
+- run: `travis setup releases`, use the tripleabuilderbot credentials
+- Now fix up the .travis.yml file so the only thing that changes is the deploy key
+- Push and verify the build works well
