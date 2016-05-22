@@ -17,6 +17,7 @@
  
   
 ## Submitting Maps, and Map Zip Requirements
+* Do not use spaces in file names, replace them with underscores pls.
 
 ### Step 1: Request a Github Repository for Your Map
 
