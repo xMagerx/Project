@@ -1367,34 +1367,6 @@
     <br>AI play is not possible; human-vs.-human play only, online or via email. 
     <br>
   version: 1.0.4
-- mapName: Caribbean_Trade_War
-  url: https://github.com/triplea-maps/caribbean_trade_war/releases/download/0.14/caribbean_trade_war.zip
-  description: |
-    <img src="http://tripleamaps.sourceforge.net/images/TripleA_caribbean_trade_war_mini.png" />
-    <br>
-    <br>Caribbean Trade War 
-    <br>Version 1.1, last update 2015.06.21 for engine 1.8.0.4
-    <br>Game done by Frostion 
-    <br>
-    <br>a.) Content: 
-    <br>1 Game 
-    <br>Caribbean Trade War 
-    <br>
-    <br>b.) Rough overview: 
-    <br>This map is set in the 1700s Caribbean. Two 3-player alliances fight over control of money, land and sea territories. The first alliance is the Franco-Dutch-Danish and the second is the Anglo-Spanish-Swedish. 
-    <br>
-    <br>The game features 
-    <br>- A 3 vs 3 player scenario that is AI compatible. 
-    <br>- Pirates and Indians (Two additional AI controlled players that are meant as weak harassing elements). 
-    <br>- Timed triggers that regularly provide all players with extra military units and money. 
-    <br>- A lot of interesting land and sea units that also include several support types. 
-    <br>- An approximately 50/50 focus on land and sea. 
-    <br>- Two victory conditions (Economic and Total Victory). 
-    <br>
-    <br>c.) General tips: 
-    <br>Read the map notes for more detailed information and game conditions.  
-    <br>
-  version: 1.1
 - mapName: UrQuanWarMastersEdition
   url: https://github.com/triplea-maps/ur_quan_war_masters_edition/releases/download/0.3/ur_quan_war_masters_edition.zip
   description: |
