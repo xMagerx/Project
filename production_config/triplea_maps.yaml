@@ -361,6 +361,24 @@
     <br>Feedback highly welcome, if played.
     <br>Leave feedback at the forums: http://triplea.sourceforge.net/mywiki/Community
     <br>or at the Depot: http://sites.google.com/site/tripleaerniebommel/
+- mapName: Age of Tribes
+  url: https://github.com/triplea-maps/age_of_tribes/releases/download/0.176/age_of_tribes.zip
+  description: |  
+    <img src="https://raw.githubusercontent.com/triplea-maps/age_of_tribes/master/description/AoT_mini.png" />
+    <br>
+    <br><b><em>Age of Tribes</em></b>
+    <br><b><em>by Frostion</em></b>
+    <br>
+    <br>This is an 8 player map with two alliances.
+    <br>
+    <br>Set in an alternate timeline where you determine the course of history.
+    <br>Play as part of the European Eastern or Western tribal alliances.
+    <br>Survive the wildlife, barbarian tribes, the black death and nuclear war.
+    <br>Advance through the ages while personalizing your tribal build options.
+    <br>Use the special tech tree system to gain access to specific units.
+    <br>
+    <br>
+  version: 1.0.1
 - mapName: big_world_1939
   url: https://github.com/triplea-maps/big_world_1939/releases/download/0.5/big_world_1939.zip
   description: |
@@ -606,6 +624,25 @@
     <br>This version of Greyhawk continues to function, but is being deprecated. Please install the new, massively revised Greyhawk Wars: http://tinyurl.com/ghwars
     <br>
   version: 0.9.9
+- mapName: Caribbean Trade War
+  url: https://github.com/triplea-maps/caribbean_trade_war/releases/download/0.22/caribbean_trade_war.zip
+  description: |  
+    <img src="https://raw.githubusercontent.com/triplea-maps/caribbean_trade_war/master/description/CaribbeanTradeWar_mini.png" />
+    <br>
+    <br><b><em>Caribbean Trade War</em></b>
+    <br><b><em>by Frostion</em></b>
+    <br>
+    <br>This is a 6 player map with two alliances.
+    <br>
+    <br>Set in the 1700s Caribbean where European powers seek to dominate.
+    <br>Join the Franco-Dutch-Danish or the Anglo-Spanish-Swedish alliance.
+    <br>Tackle the menace of local savage indians as well as harassing pirates.
+    <br>Receive periodic military assistance from the European homelands.
+    <br>Use several types of ground units, ships, fortifications and officers.
+    <br>Win the trade war by controlling productive lands and convoy zones.
+    <br>
+    <br>
+  version: 1.3.1
 - mapName: domination
   url: https://github.com/triplea-maps/domination/releases/download/0.3/domination.zip
   description: |
@@ -620,6 +657,27 @@
         More to come later.     
                -Triplelk (Jason Clark) and Surtur  
   version: 1.6
+- mapName: Dragon War
+  url: https://github.com/triplea-maps/dragon_war/releases/download/0.38/dragon_war.zip
+  description: |  
+    <img src="https://raw.githubusercontent.com/triplea-maps/dragon_war/master/description/DragonWar_mini.png" />
+    <br>
+    <br><b><em>Dragon War</em></b>
+    <br><b><em>by Frostion</em></b>
+    <br>
+    <br>This is a 6 player map with two alliances.
+    <br>
+    <br>Set in a fantasy world with elves, dwarves, greenskins and undead.
+    <br>Build up and expand your nation with villages, towns and cities.
+    <br>Enjoy unique racial advantages and the abilities of special characters.
+    <br>Collect wood, metal and food to build up your military.
+    <br>Use ships to fish in offshore sea zones.
+    <br>Tackle pestering murlocs, kobolds, gnolls, ogres, pirates and more.
+    <br>Battle on map terrain like mountain, desert, swamp, forest and snow.
+    <br>Use forts, castles, siege weapons and the mighty dragons of war.
+    <br>
+    <br>
+  version: 1.2.1
 - mapName: twilight_imperium
   url: https://github.com/triplea-maps/twilight_imperium/releases/download/0.3/twilight_imperium.zip
   description: |
@@ -637,27 +695,63 @@
     <br>
     <br>if you play it, help it be perfected by giving feedback!
   version: 1.2
-- mapName: StarWarsGalacticWar
-  url: https://github.com/triplea-maps/star_wars_galactic_war/releases/download/0.12/star_wars_galactic_war.zip
+- mapName: Star Trek Dilithium War
+  url: https://github.com/triplea-maps/star_trek_dilithium_war/releases/download/0.77/star_trek_dilithium_war.zip
   description: |
-    <img src="http://tripleamaps.sourceforge.net/images/TripleA_starwars_galactic_war_mini.png" />
-    <br>created by Frostion 
+    <img src="https://raw.githubusercontent.com/triplea-maps/star_trek_dilithium_war/master/description/StarTrek_mini.png" />
     <br>
-    <br>Set in the Star Wars universe _ A long time ago in a galaxy far, far away...  Some years after the death of Emperor Palpatine and after the rise of the New Republic, a new civil war breaks out. Now 8 Star Wars universe factions will battle for control over the entire galaxy. 
+    <br><b><em>Star Trek Dilithium War</em></b>
+    <br><b><em>by Frostion</em></b>
     <br>
-    <br>All 8 factions have different unit types and starting conditions, therefore they must rely on different tactics to prevail. The map has neutrals, pirates, local forces and other hazards that can obstruct the battle plans of the factions. (These are not meant to be played. They are meant to be under AI control.) Galactic War is a 4v4 map, but 2v2 and Free-for-all versions are included, designed to be played separately or along with StarWarsTatooineWar.  
-  version: 1.2
-- mapName: StarWarsTatooineWar
-  url: https://github.com/triplea-maps/star_wars_tatooine_war/releases/download/0.12/star_wars_tatooine_war.zip
+    <br>This is a 6 player map with two alliances.
+    <br>
+    <br>Set 2/3 into the time of Star Trek Deep Space Nine Season 3.
+    <br>Take control of a Star Trek power and battle in space and on planets.
+    <br>Randomly placed planets ensure that every playthrough is different.
+    <br>Introducing Command, Engineering, Science and Dilithium resources.
+    <br>Use the technology development system to upgrade your units.
+    <br>Advance in commander rank and get more government support.
+    <br>
+    <br>
+  version: 1.0.1
+- mapName: Star Wars Galactic War
+  url: https://github.com/triplea-maps/star_wars_galactic_war/releases/download/0.64/star_wars_galactic_war.zip
   description: |
-    <img src="http://tripleamaps.sourceforge.net/images/TripleA_starwars_tatooine_war_mini.png" />
-    <br>created by Frostion 
+    <img src="https://raw.githubusercontent.com/triplea-maps/star_wars_galactic_war/master/description/StarWarsGalacticWar_mini.png" />
     <br>
-    <br>Set in the Star Wars universe _ A long time ago in a galaxy far, far away... 
-    <br>Some years after the death of Emperor Palpatine and after the rise of the New Republic, a new civil war breaks out. Now 8 Star Wars universe factions battle for control of the planet Tatooine, in the midst of a galactic war.
+    <br><b><em>Star Wars Galactic War</em></b>
+    <br><b><em>by Frostion</em></b>
     <br>
-    <br>All 8 factions have different unit types and starting conditions, therefore they must rely on different tactics to prevail. The map has neutrals, pirates, local forces and other hazards that can obstruct the battle plans of the factions. (These are not meant to be played. They are meant to be under AI control.) StarWars Tatooine War is a 4v4 map, but 2v2 and Free-for-all versions are included, designed to be played separately or along with StarWarsGalacticWar.
-  version: 1.2
+    <br>This is an 8 player map with two alliances.
+    <br>A 4 team version and a FFA version is also included.
+    <br>
+    <br>Set a long time ago in a galaxy far, far away...
+    <br>Unfolding after the fall of Palpatine and the rise of the New Republic.
+    <br>In a torn galaxy a new civil war breaks out between good and evil.
+    <br>All factions have unique unit sets and demand different player tactics.
+    <br>This map shares factions and units with Star Wars Tatooine War.
+    <br>
+    <br>
+  version: 1.4.1
+- mapName: Star Wars Tatooine War
+  url: https://github.com/triplea-maps/star_wars_tatooine_war/releases/download/0.56/star_wars_tatooine_war.zip
+  description: |
+    <img src="https://raw.githubusercontent.com/triplea-maps/star_wars_tatooine_war/master/description/StarWarsTatooineWar_mini.png" />
+    <br>
+    <br><b><em>Star Wars Tatooine War</em></b>
+    <br><b><em>by Frostion</em></b>
+    <br>
+    <br>This is an 8 player map with two alliances.
+    <br>A 4 team version and a FFA version is also included.
+    <br>
+    <br>Set a long time ago in a galaxy far, far away...
+    <br>Unfolding after the fall of Palpatine and the rise of the New Republic.
+    <br>In a torn galaxy a new civil war breaks out between good and evil.
+    <br>All factions have unique unit sets and demand different player tactics.
+    <br>This map shares factions and units with Star Wars Galactic War.
+    <br>
+    <br>
+  version: 1.4.1
 - mapName: Pacific_Challenge
   url: https://github.com/triplea-maps/pacific_challenge/releases/download/0.7/pacific_challenge.zip
   description: |
