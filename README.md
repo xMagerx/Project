@@ -1,5 +1,6 @@
 # TripleA Maps Project
 - Game engine:  http://github.com/triplea-game/triplea
+- Map Discussion / TODO items: https://github.com/triplea-maps/Project/issues
 
 ## How to Suggest an Update to a Map / How to Submit a Map Bug Report
 
