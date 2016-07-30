@@ -50,12 +50,6 @@ Stay tuned for some more help notes here.. Please post an issue if you find any 
   - You can chat there about maps, map making. And also you'll hear announcements as well, and the general community chatter. If you drop off for some time, for a few weeks or a few months, then you'll need to review the docs a bit to see what you missed. At least, that is the intent. So if you have any questions, where you want to reach map makers and the map admins, you can ask them on gitter, and chances are decent they'll be answered within hours or a day. 
 
 
-## Was this confusing?
-TripleA is a community project. We can use help with better, simpler, more thorough documentation. Feel free to submit pull requests to update documentation. For example, go to this readme file directly: https://github.com/triplea-maps/Project/edit/master/MapMakingTools/README.md, and then click the pencil icon. Make changes, then github will help guide you in submitting a pull request.
-
-
-
-
 ## How are maps included with the game?
 
 * Map description and download links are pulled from: https://github.com/triplea-maps/Project/blob/master/production_config/triplea_maps.yaml
@@ -72,3 +66,11 @@ TripleA is a community project. We can use help with better, simpler, more thoro
 
 
 
+## Was this confusing?
+Please help clarify these notes:
+* https://github.com/triplea-maps/Project/edit/master/MapMakingTools/README.md
+* Pencil icon
+* Edit, fix things up
+* Then click save, submit a PR, Github will guide you along
+ 
+TripleA is a community supported project. Any help with the documentation is really appreciated. If you follow these steps, pay forward to the next person and fill in missing steps and add clarifications!
