@@ -298,25 +298,18 @@
     <br>
   version: 3.0
 - mapName: World War II Global
-  url: https://github.com/triplea-maps/world_war_ii_global/releases/download/1.2/world_war_ii_global.zip
+  url: https://github.com/triplea-maps/world_war_ii_g40_balanced/releases/download/0.10/world_war_ii_g40_balanced.zip
   description: |
     <img src="http://tripleamaps.sourceforge.net/images/TripleA_ww2_global_1940_mini.png" />
     <br>
-    <br>World War II Global 1940
-    <br>
-    <br>Includes: Original/OOB and Alpha+3 and Second Edition and a Global 1942 mod.
+    <br>World War II Global 1940 Balanced Mod 2.0
     <br>
     <br>Now working fully according to official rules.
     <br>
     <br>Map and XML by Bung, XML conditions, objectives, triggers and special code by Veqryn
-    <br>Engine code to get this game to work by Veqryn
+    <br>Mod developed by regularkid et al
     <br>
-    <br>A fifth TripleA adaption of World War II.
-    <br>Check out the forum threads here:
-    <br>http://tripleadev.1671093.n2.nabble.com/World-War-II-Global-1940-Alpha-3-tp7399456p7399456.html
-    <br>http://tripleadev.1671093.n2.nabble.com/World-War-II-Global-1940-Original-tp7314662p7314662.html
-    <br>
-  version: 3.9
+  version: 2.0
 - mapName: World War II v5 1942
   url: https://github.com/triplea-maps/world_war_ii_v5_1942/releases/download/0.3/world_war_ii_v5_1942.zip
   description: |
