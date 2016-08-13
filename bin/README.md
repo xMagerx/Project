@@ -73,3 +73,33 @@ To re-kick the travis token generation:
 - run: `travis setup releases`, use the tripleabuilderbot credentials
 - Now fix up the .travis.yml file so the only thing that changes is the deploy key
 - Push and verify the build works well
+
+
+# Keeping maps up to date
+
+There is a check map script which will at least inform you of out of date maps.
+
+```
+dan@dan-desk:~/work/maps/Project/production_config$ ../bin/check_map_versions.sh 
+
+-------------------------
+version check
+
+star_wars_tatooine_war latest = (0.64) -> current = 0.56/star_wars_tatooine_war.zip
+global_war latest = (0.9) -> current = 0.3/global_war.zip
+total_ancient_war latest = (0.9) -> current = 0.5/total_ancient_war.zip
+cold_war_asia1948 latest = (0.5) -> current = 0.3/cold_war_asia1948.zip
+ultimate_world latest = (0.9) -> current = 0.3/ultimate_world.zip
+pact_of_steel_variations latest = (0.9) -> current = 0.3/pact_of_steel_variations.zip
+   is latest - diplomacy-map_skin2
+greyhawk latest = (0.9) -> current = 0.5/greyhawk.zip
+   is latest - world_war_ii_global-battlemap_skin
+ur_quan_war_masters_edition latest = (0.7) -> current = 0.3/ur_quan_war_masters_edition.zip
+pacific_1942 latest = (0.7) -> current = 0.3/pacific_1942.zip
+feudal_japan_warlords latest = (0.11) -> current = 0.7/feudal_japan_warlords.zip
+ancient_times latest = (0.9) -> current = 0.5/ancient_times.zip
+world_war_ii_v6_1941 latest = (0.9) -> current = 0.3/world_war_ii_v6_1941.zip
+   is latest - diplomacy-map_skin1
+1914-cow-empires latest = (0.8) -> current = 0.4/1914-cow-empires.zip
+```
+
