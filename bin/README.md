@@ -77,9 +77,45 @@ To re-kick the travis token generation:
 
 # Keeping maps up to date
 
-There is a check map script which will at least inform you of out of date maps.
+Assuming you know that all of the latest map versoins are safe - run the update maps scripts
 
 ```
+
+dan@dan-desk:~/work/maps/Project/production_config$ ../bin/check_map_versions.sh 
+
+
+-------------------------
+version check
+
+star_wars_tatooine_war latest = (0.64) -> current = 0.64/star_wars_tatooine_war.zip
+global_war latest = (0.9) -> current = 0.9/global_war.zip
+total_ancient_war latest = (0.9) -> current = 0.9/total_ancient_war.zip
+cold_war_asia1948 latest = (0.5) -> current = 0.5/cold_war_asia1948.zip
+ultimate_world latest = (0.9) -> current = 0.9/ultimate_world.zip
+pact_of_steel_variations latest = (0.9) -> current = 0.9/pact_of_steel_variations.zip
+   is latest - diplomacy-map_skin2
+greyhawk latest = (0.9) -> current = 0.9/greyhawk.zip
+:
+:
+world_at_war_variants latest = (0.9) -> current = 0.9/world_at_war_variants.zip
+big_world_1939 latest = (0.11) -> current = 0.11/big_world_1939.zip
+invasion_usa latest = (0.50) -> current = 0.50/invasion_usa.zip 
+world_war_ii_g40_balanced latest = (0.13) -> current = 0.13/world_war_ii_g40_balanced.zip
+
+
+-------------------------
+summary:
+
+LATEST => 13
+diplomacy-map_skin2 world_war_ii_global-battlemap_skin diplomacy-map_skin1 diplomacy-map_skin3 new_world_order-skin_sieg_2 red_sun_over_china world_war_ii_global new_world_order-skin_pulicat_1 big_world capture_the_flag middle_earth-map_skin2 middle_earth napoleonic_empire-political_map_skin
+
+NOT_FOUND => 33
+/Project.git /tutorial.git /aa_enhanced_revised.git /roman_invasion.git /great_lakes_war.git /cybertank.git /civil_war-bigmap.git /sleeping_giant.git /diplomacy-map_skin4.git /blood_and_iron.git /270bc-old_skin.git /smalls_1939.git /peninsula_campaign.git /stalingrad.git /1941.git /sengoku_jidai.git /middle_east.git /tiberian_conquest_au.git /ultimate_world_variants.git /tiberian_conquest_sa.git /new_world_order-upsidedown.git /conquest_of_the_world.git /small_balanced_2_or_4_player.git /command_and_conquer.git /tiberian_conquest_eu.git /cold_war-1965.git /operation_market_garden.git /world_at_war_pbem.git /world_at_war-skin_sneak.git /new_world_order_variants.git /world_at_war_pbem-.git /new_world_order_variants-.git /roll_through_the_reich.git
+Not Latest: 89
+```
+
+
+
 dan@dan-desk:~/work/maps/Project/production_config$ ../bin/check_map_versions.sh 
 
 -------------------------
