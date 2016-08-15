@@ -1,3 +1,53 @@
+# Map Making Documentation
+
+## Requirements
+* A github account
+
+## Simple XML Updates
+* Find the github map repo of the map you would like to update: https://github.com/triplea-maps
+* Click through to the XML file
+* Find the pencil icon, that let's you edit the file.
+* When saving, github will help prompt you, you will create a fork which is a remote copy that you own. The UI will guide you to creating this, saving (called commit), and then you can request your copy be merged into live master copy (called a pull request). You'll be able to do all these steps from the UI that let's you save file edits
+
+## Adding or replacing files
+* The github UI will allow you to do this. To do it in bulk you may need to do some git (sourcetree, git for windows and other GUI tools can help)
+
+## New Map Development 
+* The key is getting the folder structure right.
+
+* You can develop your map directly from the "downloadedFolders" map and the game engine will pick it up. Note, you can change this folder location in-game via the settings window. For example, your "downloadedFolders" might look like this:  ![above_the_project](https://cloud.githubusercontent.com/assets/12397753/17640925/f50e1876-60c0-11e6-96d8-483f0a84f389.png)
+
+* In the above picture, "big_world_2" is the folder we are working on, after creating a similar folder, the next level should contain a "map" folder. Any other files at this level are support. A typical config will look like this:
+![bare_bones_top_level](https://cloud.githubusercontent.com/assets/12397753/17640936/30528e44-60c1-11e6-815e-e03c395a26b5.png)
+or like this:
+![top_level](https://cloud.githubusercontent.com/assets/12397753/17640928/f9269118-60c0-11e6-84b5-63a0153ed4fb.png)
+
+** Everything in the "map" folder will be packaged with the map zip when it is downloaded from within a game.
+
+* The last level contains the standard map folders and files, should look something like this: ![3rd_level](https://cloud.githubusercontent.com/assets/12397753/17640896/010137cc-60c0-11e6-8f02-4700c709ab66.png)
+
+
+### Posting to Github
+* Create a github account
+* Create a repository
+* Upload your map folder to it
+** If the upload size is too large, do it a few folders at a time
+** Note, do not upload any zips, they cannot be modified easily, and it is unnecessary, the game engine can read unzipped map projects just fine
+
+* To make the map official, it needs to be in the triplea-map organization, and needs to be included in the download index file.
+** You can change ownership of a github repo, open a ticket here for guidance: https://github.com/triplea-maps/Project/issues
+** The download index file is here: https://github.com/triplea-maps/Project/blob/master/production_config/triplea_maps.yaml
+
+
+### Testing
+
+The game engine can load maps directly. For instructions, see the 'adding new map' instructions above, and/or: https://github.com/triplea-maps/Project
+
+
+# Legacy Docs
+The docs below are a bit legacy.. they need to be cleaned up/ simplified.. But still here in case it helps anyone
+
+
 ## How to Request Map XML Updates
 * This can be done using just your web browser:
   * Find the github map repo of the map you would like to update: https://github.com/triplea-maps
