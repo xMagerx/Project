@@ -1497,7 +1497,7 @@
         <li><b>and some more...</b></li>
         </UL><br/>
   version: 1.5
- - mapName: war_of_the_relics
+- mapName: war_of_the_relics
   url: https://github.com/triplea-maps/war_of_the_relics/releases/download/0.11/war_of_the_relics.zip
   description: |
     <img src="http://tripleamaps.sourceforge.net/images/TripleA_war_of_the_relics_mini.png" />
