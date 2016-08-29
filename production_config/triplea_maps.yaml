@@ -874,12 +874,12 @@
     <br>Four If By Sea
     <br>
   version: 1.9
-- mapName: Napoleanic Empire Map Skin
+- mapName: Napoleonic Empire Map Skin
   mapType: MAP_SKIN
-  url: https://github.com/triplea-maps/napoleonic_empire-political_map_skin/releases/download/0.5/napoleonic_empire-political_map_skin.zip
+  url: https://github.com/triplea-maps/napoleonic_empire-political_map_skin/releases/download/0.8/napoleonic_empire-political_map_skin.zip
   version: 0.1
   description: |
-     <br>Napoleanic Empire Map Skin
+     <br>Napoleonic Empire Map Skin
 - mapName: Middle Earth Map Skin
   mapType: MAP_SKIN
   url: https://github.com/triplea-maps/middle_earth-map_skin2/releases/download/0.11/middle_earth-map_skin2.zip
