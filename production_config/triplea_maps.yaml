@@ -113,7 +113,7 @@
     <br><b>This allows to play only the majorpowers without having too many nations to be played, but have a realistic use of local resources.<b>
     <br>
 - mapName: 270BC
-  url: https://github.com/triplea-maps/270bc/releases/download/0.11/270bc.zip
+  url: https://github.com/triplea-maps/270bc/releases/download/0.13/270bc.zip
   description: |
     <img src="http://tripleamaps.sourceforge.net/images/TripleA_270BC_mini.png" />
     <br>
@@ -298,7 +298,7 @@
     <br>
   version: 3.0
 - mapName: World War II Global
-  url: https://github.com/triplea-maps/world_war_ii_global/releases/download/0.24/world_war_ii_global.zip
+  url: https://github.com/triplea-maps/world_war_ii_global/releases/download/0.27/world_war_ii_global.zip
   description: |
     <img src="http://tripleamaps.sourceforge.net/images/TripleA_ww2_global_1940_mini.png" />
     <br>
@@ -362,7 +362,7 @@
     <br>Leave feedback at the forums: http://triplea.sourceforge.net/mywiki/Community
     <br>or at the Depot: http://sites.google.com/site/tripleaerniebommel/
 - mapName: Age of Tribes
-  url: https://github.com/triplea-maps/age_of_tribes/releases/download/0.204/age_of_tribes.zip
+  url: https://github.com/triplea-maps/age_of_tribes/releases/download/0.206/age_of_tribes.zip
   description: |  
     <img src="https://raw.githubusercontent.com/triplea-maps/age_of_tribes/master/description/AoT_mini.png" />
     <br>
