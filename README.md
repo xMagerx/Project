@@ -1,3 +1,15 @@
+# Deprecation
+
+Trying to consolidate back to the game engine: http://github.com/triplea-game/triplea
+
+Migration items:
+
+- docs -> https://github.com/triplea-game/triplea/tree/master/docs
+- map making tools -> move to their own repo
+- scripts -> move to a admin_scripts repo 
+
+
+
 # TripleA Maps Project
 
 * Map Making: https://github.com/triplea-maps/Project/tree/master/MapMakingTools
