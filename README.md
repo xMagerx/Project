@@ -1,11 +1,4 @@
-# deprecated
-
-Migration items:
-* (done) map download config file -> moved to: https://github.com/triplea-game/triplea/blob/master/triplea_maps.yaml
-* docs -> move to game engine https://github.com/triplea-game/triplea/blob/master/docs
-* scripts -> move to an admin_scripts repo
-* map tools -> move to their own repo
-
+TODO: some updates need here. Also to clarify exact role of this repository.
 
 
 # TripleA Maps Project
