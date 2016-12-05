@@ -32,3 +32,25 @@ Three ways:
   * Describe the problem, be specific
 
 * Game bugs should be reported with the game engine: http://github.com/triplea-game/triplea/issues/new
+
+# Map Maintenance
+
+
+* Download (clone) all of the map repos: https://github.com/triplea-maps/Project/blob/master/bin/clone_all.sh
+
+## Useful commands:
+
+```
+## search for text
+grep -r "search_text"
+
+## search for text and only display the names of the files that match
+grep -lr "search_text"
+
+
+## search XML files, and for each one search for text. 
+## This is a much faster version than 'grep -r' which goes over image and binary files
+## The "-H" forces the file name in grep. "-h" will suppress. The forced file name is to mimic
+## the behavior of 'grep -r' via using the find command.
+find . -name "*xml" | xargs grep -H "search_text"
+```
